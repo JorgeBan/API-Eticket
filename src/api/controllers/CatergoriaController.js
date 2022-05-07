@@ -24,7 +24,7 @@ async function createCategoria(req, res) {
     try{
         const categoriaService = new CategoriaService();
         const categoria = await categoriaService.create(req.body);
-        res.status(200).json(categoria);
+        res.status(201).json(categoria);
     }catch(err){
         res.status(500).json(err);
     }
