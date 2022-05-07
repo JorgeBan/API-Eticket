@@ -8,6 +8,7 @@ const UbicacionRoutes = require('./src/api/routes/UbicacionRoutes');
 const HorarioRoutes = require('./src/api/routes/HorarioRoutes');
 const SectorRoutes = require('./src/api/routes/SectorRoutes');
 const EspacioRoutes = require('./src/api/routes/EspacioRoutes');
+const ImagenEventoRoutes = require('./src/api/routes/ImagenEventoRoutes');
 
 const app = express();
 
@@ -18,7 +19,7 @@ app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(morgan('dev'));
-
+app.use(express.static(__dirname));
 
 app.use(API_URI, EventoRoute);
 app.use(API_URI, CategoriaRoutes);
@@ -26,7 +27,7 @@ app.use(API_URI, UbicacionRoutes);
 app.use(API_URI, HorarioRoutes);
 app.use(API_URI, SectorRoutes);
 app.use(API_URI, EspacioRoutes);
-
+app.use(API_URI, ImagenEventoRoutes);
 
 app.use(API_URI,(req,res)=>{
     res.status(200).json({
