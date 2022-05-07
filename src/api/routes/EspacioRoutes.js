@@ -1,11 +1,13 @@
 const { Router } = require('express');
 const EspacioController = require('../controllers/EspacioController');
+const { validateCreate } = require('../validators/EspacioValidator');
+
 const router = Router();
 
 router.get('/espacios', EspacioController.getAllEspacios);
 router.get('/espacios/:id', EspacioController.getEspacioById);
 
-router.post('/espacios', EspacioController.createEspacio);
+router.post('/espacios',validateCreate, EspacioController.createEspacio);
 
 router.put('/espacios/:id', EspacioController.updateEspacio);
 
