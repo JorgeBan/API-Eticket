@@ -30,10 +30,6 @@ const Sector = sequelize.define('sector', {
         allowNull: true,
     },
     
-    imagen_estructura_sector:{
-        type: Sequelize.STRING,
-        allowNull: true, 
-    },
     idubicacion:{
         type: Sequelize.INTEGER,
         allowNull: false,

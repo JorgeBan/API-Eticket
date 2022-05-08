@@ -25,3 +25,9 @@ exports.uploads = (file, folder) => {
     );
 }
 
+exports.delete = (file, folder) => {
+        cloudinary.uploader.destroy(file, (error, result) => {
+            console.log("Eliminado");
+        });
+}
+

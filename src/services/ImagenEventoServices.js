@@ -15,6 +15,15 @@ class ImagenEventoService extends BaseService {
             throw error;
         }
     }
+
+    async deleteImagenEvento(id) {
+        try{
+            const imagenEvento = await this._imagenEventoRepository.deleteImagenEvento(id);
+            return imagenEvento;
+        }catch(error){
+            throw error;
+        }
+    }
 }
 
 module.exports = ImagenEventoService;

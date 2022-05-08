@@ -8,4 +8,6 @@ router.get('/imagenesEvento/:id', ImagenEventoController.getImagenEventoById);
 
 router.post('/imagenesEvento', upload.array('image'), ImagenEventoController.createImagenEvento);
 
+router.delete('/imagenesEvento/:id', ImagenEventoController.deleteImagenEvento);
+
 module.exports = router;

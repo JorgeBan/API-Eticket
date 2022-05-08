@@ -46,11 +46,7 @@ const Ubicacion = sequelize.define('ubicacion', {
         type: Sequelize.INTEGER,
         allowNull: false,
     },
-
-    imagen_estructura_sala:{
-        type: Sequelize.STRING,
-        allowNull: true,
-    },
+    
     idevento:{
         type: Sequelize.INTEGER,
         allowNull: false,

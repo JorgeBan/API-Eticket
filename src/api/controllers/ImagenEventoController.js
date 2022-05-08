@@ -32,9 +32,19 @@ async function createImagenEvento(req, res) {
     }
 }
 
+async function deleteImagenEvento(req, res) {
+    try {
+        const imagenEvento = await imagenEventoService.deleteImagenEvento(req.params.id);
+        res.status(200).json(imagenEvento);
+    }catch(error) {
+        res.status(500).json(error);
+        console.log(error);
+    }
+}
 
 module.exports = {
     getAllImagenesEventos,
     getImagenEventoById,
-    createImagenEvento
+    createImagenEvento,
+    deleteImagenEvento
 }

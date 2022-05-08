@@ -20,6 +20,11 @@ const Imagenes_evento = sequelize.define('imagenes_evento', {
         allowNull: false,
        
     },
+    idpublico:{
+        type: Sequelize.STRING,
+        allowNull: false,
+    },
+
     idevento:{
         type: Sequelize.INTEGER,
         allowNull: false,
