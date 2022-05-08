@@ -1,5 +1,4 @@
 const express = require('express');
-const morgan = require('morgan');
 const cors = require('cors');
 
 const EventoRoute = require('./src/api/routes/EventoRoutes');
@@ -18,7 +17,6 @@ const API_URI = '/api/v1.0.0';
 app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(morgan('dev'));
 app.use(express.static(__dirname));
 
 app.use(API_URI, EventoRoute);
