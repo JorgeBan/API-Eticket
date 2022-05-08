@@ -5,7 +5,14 @@ module.exports = {
         password: process.env.DB_PRO_PASSWORD,
         database: process.env.DB_PRO_DATABASE,
         host: process.env.DB_PRO_HOST,
+        port: process.env.DB_PRO_PORT,
         dialect: "postgres",
+        dialectOptions: {
+            ssl: {      /* <----- Add SSL option */
+              require: true,
+              rejectUnauthorized: false 
+            }
+        },
         logging: false
     }
 }
