@@ -30,7 +30,8 @@ app.use(API_URI, ImagenEventoRoutes);
 app.use(API_URI,(req,res)=>{
     res.status(200).json({
         message: 'Welcome to the API',
-        version: '1.0.0',      
+        version: '1.0.0',
+        year: new Date().getFullYear()      
     });
 });
 
