@@ -1,7 +1,7 @@
 const app = require('./app');
 const config = require('./src/config/environments/index');
 const connection = require('./src/config/database/database');
-const port = config.PORT || 3000;
+const port = config.PORT || process.env.PORT;
 
 function main() {
     app.listen(port, () => {
