@@ -63,6 +63,40 @@ class EventoRepository extends BaseRepository {
         }
     }
 
+    async updateEstadoEvento(id, evento) {
+        try {
+            let updatedEvento;
+
+            if(evento.estado == 'Activo'){
+                let existsUbicacion = await this.model.findByPk(id, {
+                    include: [Ubicacion]
+                });  
+                if(existsUbicacion.dataValues.ubicacions.length > 0){
+                        await this.model.update(evento, {
+                            where: { idevento: id }
+                        });
+                        updatedEvento = {
+                            message: 'Evento activado',
+                        }
+                }else{
+                    updatedEvento = {
+                        message: 'El evento no tiene ubicación, no puedes activarlo, agrega una ubicación para poder activarlo',
+                    }
+                }
+            }else{
+                await this.model.update(evento, {
+                    where: { idevento: id }
+                });
+                updatedEvento = {
+                    message: 'Estado actulizado',
+                };
+            }
+            return updatedEvento;
+        }catch (e) {
+
+            throw e;
+        }
+    }
 }
 
 module.exports = EventoRepository;

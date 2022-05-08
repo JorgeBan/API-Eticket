@@ -59,5 +59,15 @@ class EventoServices extends BaseServices {
             throw e;
         }
     }
+
+    async updateEstadoEvento(id, evento) {
+        try {
+            const updatedEvento = await this._eventoRepository.updateEstadoEvento(id, evento);
+            return updatedEvento;
+        }catch(e){
+            throw e;
+        }
+
+    }
 }
 module.exports = EventoServices;
