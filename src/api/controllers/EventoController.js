@@ -68,7 +68,12 @@ const eventoServices = new EventoServices();
     async function updateEstadoEvento(req, res) {
         try{
             const evento = await eventoServices.updateEstadoEvento(req.params.id, req.body);
-            res.status(200).json(evento);
+            if(evento.ok === true){
+                res.status(200).json(evento);
+            }else{
+                res.status(400).json(evento);
+            }
+            
         }catch(e){
             res.status(500).json(e);
         }

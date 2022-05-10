@@ -76,10 +76,12 @@ class EventoRepository extends BaseRepository {
                             where: { idevento: id }
                         });
                         updatedEvento = {
+                            ok: true,
                             message: 'Evento activado',
                         }
                 }else{
                     updatedEvento = {
+                        ok: false,
                         message: 'El evento no tiene ubicación, no puedes activarlo, agrega una ubicación para poder activarlo',
                     }
                 }
@@ -88,6 +90,7 @@ class EventoRepository extends BaseRepository {
                     where: { idevento: id }
                 });
                 updatedEvento = {
+                    ok: true,
                     message: 'Estado actulizado',
                 };
             }
