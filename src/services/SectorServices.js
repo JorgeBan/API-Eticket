@@ -24,6 +24,16 @@ class SectorServices extends BaseServices {
             throw error;
         }
     }
+
+    async createSector(sector) {
+        try{
+            const createdSector = await this._sectorRepository.createSector(sector);
+            return createdSector;
+        }catch(error){
+            throw error;
+        }
+    }
+
     async updateSector(id, sector) {
         try{
             const updatedSector = await this._sectorRepository.updateSector(id, sector);

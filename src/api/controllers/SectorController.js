@@ -21,10 +21,10 @@ async function getSectorById(req, res) {
 
 async function createSector(req, res) {
     try{
-        const sector = await sectorServices.create(req.body);
+        const sector = await sectorServices.createSector(req.body);
         res.status(201).json(sector);
     }catch(error){
-        res.status(500).json(error);
+        res.status(error.status).json(error.message);
     }
 }
 
@@ -33,7 +33,8 @@ async function updateSector(req, res) {
         const sector = await sectorServices.updateSector(req.params.id, req.body);
         res.status(200).json(sector);
     }catch(error){
-        res.status(500).json(error);
+        console.log(error);
+        res.status(error.status||500).json(error.message||error);
     }
 }
 
@@ -42,7 +43,7 @@ async function deleteSector(req, res) {
         const sector = await sectorServices.deleteSector(req.params.id);
         res.status(200).json(sector);
     }catch(error){
-        res.status(500).json(error);
+        res.status(error.status||500).json(error.message||error);
     }
 }
 

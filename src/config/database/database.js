@@ -9,7 +9,7 @@ var sequelize = new Sequelize(
         host: config.DB.host,
         dialect: config.DB.dialect,
         dialectOptions: config.DB.dialectOptions,
-  
+        logging: false,
         pool: {
             max: 5,
             min: 0,

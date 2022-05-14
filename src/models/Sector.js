@@ -33,6 +33,9 @@ const Sector = sequelize.define('sector', {
     idubicacion:{
         type: Sequelize.INTEGER,
         allowNull: false,
+    },
+    capacidad_disponible:{
+        type: Sequelize.INTEGER,
     } 
 
 },{
