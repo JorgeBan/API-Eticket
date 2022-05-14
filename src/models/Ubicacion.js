@@ -50,6 +50,10 @@ const Ubicacion = sequelize.define('ubicacion', {
     idevento:{
         type: Sequelize.INTEGER,
         allowNull: false,
+    },
+
+    capacidad_disponible:{
+        type: Sequelize.INTEGER,
     }
 
 },{

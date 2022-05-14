@@ -21,7 +21,7 @@ async function getUbicacionById(req, res) {
 
 async function createUbicacion(req, res) {
     try{
-        const ubicacion = await ubicacionServices.create(req.body);
+        const ubicacion = await ubicacionServices.createUbicacion(req.body);
         res.status(201).json(ubicacion);
     }catch(error){
         res.status(500).json(error);
@@ -32,8 +32,9 @@ async function updateUbicacion(req, res) {
     try{
         const ubicacion = await ubicacionServices.updateUbicacion(req.params.id, req.body);
         res.status(200).json(ubicacion);
-    }catch(error){
-        res.status(500).json(error);
+    }catch(error){ 
+        console.log(error);
+        res.status(error.status).json(error.message);
     }
 }
 

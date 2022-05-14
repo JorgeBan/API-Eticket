@@ -2,6 +2,8 @@ const Ubicacion = require('../models/Ubicacion');
 const BaseRepository = require('../repositories/BaseRepository');
 const Horario = require('../models/Horario');
 const Sector = require('../models/Sector');
+const UbicacionDTO = require('../dto/UbicacionDTO');
+const Repofunciones  = require('../extras/UbicacionExtrasRepo');
 
 class UbicacionRepository extends BaseRepository {
     constructor() {
@@ -31,12 +33,35 @@ class UbicacionRepository extends BaseRepository {
         }
     }
 
-    async updateUbicacion(id, ubicacion) {
+
+    async createUbicacion(ubicacion) {
         try{
-            const updatedUbicacion = await this.model.update(ubicacion, {
-                where: { idubicacion: id }
+            let ubicacionDTO = new UbicacionDTO(ubicacion);
+            const newUbicacion = await this.model.create(ubicacionDTO.toJSON());
+            return newUbicacion;
+        }catch(error){
+            throw error;
+        }
+    }
+
+    async updateUbicacion(id, newUbicacion) {
+        try{
+            let ubicacionActual = await Ubicacion.findByPk(id, {
+                include: [Sector],
             });
-            return updatedUbicacion;
+
+            if(Repofunciones._permiteEditar(ubicacionActual, newUbicacion)){
+                let diferenciaCapacidad = newUbicacion.cantidad_de_personas - ubicacionActual.cantidad_de_personas;
+                let capacidadActual = ubicacionActual.capacidad_disponible;
+                let capacidadNueva = capacidadActual + diferenciaCapacidad;
+                let ubicacionDTO = new UbicacionDTO(newUbicacion);
+                ubicacionDTO._capacidad_disponible = capacidadNueva;    
+                return Ubicacion.update(ubicacionDTO.toJSON(), {
+                    where: { idubicacion: id }
+                });
+            }else{
+                throw { status: 400, message: "No se puede reducir la capacidad de la ubicacion, hay sectores asignados, edite o elimine algun sector para continuar" };
+            }
         }catch(error){
             throw error;
         }
