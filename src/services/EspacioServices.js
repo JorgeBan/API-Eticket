@@ -51,6 +51,15 @@ class EspacioServices extends BaseServices {
             throw e;
         }
     }
+
+    async createAllEspacios(cantidad, espacio){
+        try {
+            const espacios = this._espacioRepository.createAllEspacios(cantidad, espacio);
+            return espacios;
+        } catch (e) {
+            throw e;
+        }
+    }
 }
 
 module.exports = EspacioServices;

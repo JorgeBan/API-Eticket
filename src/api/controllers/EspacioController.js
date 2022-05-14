@@ -42,7 +42,18 @@ async function deleteEspacio(req, res) {
         const espacio = await espacioService.deleteEspacio(req.params.id);
         res.json(espacio);
     }catch (e) {
+        console.log(e);
         res.status(500).json(e);
+    }
+}
+
+async function createAllEspacios(req, res) {
+    try {
+        const espacio = await espacioService.createAllEspacios(req.params.cantidad, req.body);
+        res.json(espacio);
+    }catch (e) {
+        console.log(e);
+        res.status(e.status||500).json(e);
     }
 }
 
@@ -51,5 +62,6 @@ module.exports = {
     getEspacioById,
     createEspacio,
     updateEspacio,
-    deleteEspacio
+    deleteEspacio,
+    createAllEspacios
 }

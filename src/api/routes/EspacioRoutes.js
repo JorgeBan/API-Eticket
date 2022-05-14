@@ -8,6 +8,8 @@ router.get('/espacios', EspacioController.getAllEspacios);
 router.get('/espacios/:id', EspacioController.getEspacioById);
 
 router.post('/espacios',validateCreate, EspacioController.createEspacio);
+router.post('/espacios/:cantidad', EspacioController.createAllEspacios);
+
 
 router.put('/espacios/:id', EspacioController.updateEspacio);
 
