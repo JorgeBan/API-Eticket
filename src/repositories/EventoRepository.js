@@ -76,21 +76,16 @@ class EventoRepository extends BaseRepository {
                             where: { idevento: id }
                         });
                         updatedEvento = {
-                            ok: true,
                             message: 'Evento activado',
                         }
                 }else{
-                    updatedEvento = {
-                        ok: false,
-                        message: 'El evento no tiene ubicación, no puedes activarlo, agrega una ubicación para poder activarlo',
-                    }
+                    throw {status: 400, message: 'No pude activar el evento, no tiene ubicación, agregue una ubicación'}
                 }
             }else{
                 await this.model.update(evento, {
                     where: { idevento: id }
                 });
                 updatedEvento = {
-                    ok: true,
                     message: 'Estado actulizado',
                 };
             }

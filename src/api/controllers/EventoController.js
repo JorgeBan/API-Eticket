@@ -6,8 +6,8 @@ const eventoServices = new EventoServices();
         try{
             const eventos = await eventoServices.getAllEventoEncabezados();
             res.status(200).json(eventos);
-        }catch(e){
-            res.status(500).json(e);
+        }catch(err){
+            res.status(err.status||500).json(err);
         }
     }
 
@@ -15,8 +15,8 @@ const eventoServices = new EventoServices();
         try{
             const eventos = await eventoServices.getAllEventosDatos();
             res.status(200).json(eventos);
-        }catch(e){
-            res.status(500).json(e);
+        }catch(err){
+            res.status(err.status||500).json(err);
         }
     }
 
@@ -24,8 +24,8 @@ const eventoServices = new EventoServices();
         try{
             const evento = await eventoServices.getEventoEncabezadosById(req.params.id);
             res.status(200).json(evento);
-        }catch(e){ 
-            res.status(500).json(e);
+        }catch(err){ 
+            res.status(err.status||500).json(err);
         }
     }
 
@@ -33,8 +33,8 @@ const eventoServices = new EventoServices();
         try{
             const evento = await eventoServices.getEventosDatosById(req.params.id);
             res.status(200).json(evento);
-        }catch(e){
-            res.status(500).json(e);
+        }catch(err){
+            res.status(err.status||500).json(err);
         }
     }
 
@@ -42,8 +42,8 @@ const eventoServices = new EventoServices();
         try{
             const evento = await eventoServices.create(req.body);
             res.status(201).json(evento);
-        }catch(e){
-            res.status(500).json(e);
+        }catch(err){
+            res.status(err.status||500).json(err);
         }
     }
 
@@ -51,8 +51,8 @@ const eventoServices = new EventoServices();
         try{
             const evento = await eventoServices.updateEvento(req.params.id, req.body);
             res.status(200).json(evento);
-        }catch(e){
-            res.status(500).json(e);
+        }catch(err){
+            res.status(err.status||500).json(err);
         }
     }
 
@@ -60,22 +60,17 @@ const eventoServices = new EventoServices();
         try{
             const evento = await eventoServices.deleteEvento(req.params.id);
             res.status(200).json(evento);
-        }catch(e){
-            res.status(500).json(e);
+        }catch(err){
+            res.status(err.status||500).json(err);
         }
     }
 
     async function updateEstadoEvento(req, res) {
         try{
             const evento = await eventoServices.updateEstadoEvento(req.params.id, req.body);
-            if(evento.ok === true){
-                res.status(200).json(evento);
-            }else{
-                res.status(400).json(evento);
-            }
-            
-        }catch(e){
-            res.status(500).json(e);
+            res.status(200).json(evento);
+        }catch(err){
+            res.status(err.status||500).json(err);
         }
 
     }
