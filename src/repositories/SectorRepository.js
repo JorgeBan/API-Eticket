@@ -56,9 +56,10 @@ class SectorRepository extends BaseRepository {
             let sectorActual = await this.model.findByPk(id, {
                 include: [Espacio]
             });
-
+            console.log("Sector actual: "+sectorActual)
             const capacidad_sector = newSector.capacidad;
             const diferenciaCapacidad = capacidad_sector - sectorActual.capacidad;
+            console.log("Diferencia de capacidad: "+diferenciaCapacidad);
             if(diferenciaCapacidad != 0){
                 const capacidadUbicacion = await Repofunciones._capacidadDisponibleUbicacion(sectorActual.idubicacion)
                 if(Repofunciones._permiteActulizar(diferenciaCapacidad, sectorActual, newSector, capacidadUbicacion)){

@@ -16,7 +16,7 @@ async function _capacidadDisponibleUbicacion(idubicacion){
 
 function _permiteActulizar(diferenciaCapacidad, sectorActual, newSector, capacidadUbicacion){
     if(diferenciaCapacidad > 0){
-        if(newSector.capacidad > capacidadUbicacion){
+        if(diferenciaCapacidad > capacidadUbicacion){
             throw {status: 400 , message : "No hay espacio suficiente en la ubicacion, hay " + capacidadUbicacion + " espacios disponibles para asignar"};
         }
             return true;
