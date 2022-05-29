@@ -74,6 +74,16 @@ const eventoServices = new EventoServices();
         }
 
     }
+//Funciones para el manejo de los eventos del lado del cliente final
+
+    async function getAllPublicEventos(req, res) {
+        try{
+            const eventos = await eventoServices.getAllPublicEventos();
+            res.status(200).json(eventos);
+        }catch(err){
+            res.status(err.status||500).json(err);
+        }
+    }
 module.exports = {
     getAllEventoEncabezados,
     getAllEventosDatos,
@@ -82,5 +92,6 @@ module.exports = {
     createEvento,
     updateEvento,
     deleteEvento, 
-    updateEstadoEvento
+    updateEstadoEvento,
+    getAllPublicEventos
 }

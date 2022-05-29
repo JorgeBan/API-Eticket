@@ -95,6 +95,21 @@ class EventoRepository extends BaseRepository {
             throw e;
         }
     }
+
+    async getAllPublicEventos() {
+        try {
+            const eventos = await this.model.findAll({                  
+                where: {
+                    estado: 'Activo',
+                },
+                include: [Categoria_evento, Imagenes_evento]
+            })
+            return eventos;
+        }catch(e){
+
+            throw { status: 500, message: 'Error de servidor' };
+        }
+    }
 }
 
 module.exports = EventoRepository;

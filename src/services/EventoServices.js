@@ -1,5 +1,6 @@
 const BaseServices = require('./BaseServices');
 const EventoRepository = require('../repositories/EventoRepository');
+const EventoActivoDTO = require('../dto/evento/EventoActivoDTO');
 class EventoServices extends BaseServices {
     constructor() {
         super(new EventoRepository());
@@ -69,5 +70,22 @@ class EventoServices extends BaseServices {
         }
 
     }
+
+
+async getAllPublicEventos() {
+    try {
+        let eventosActivos = []
+        const eventos = await this._eventoRepository.getAllPublicEventos();
+        for (let i = 0; i < eventos.length; i++) {
+            let eventoActivo = new EventoActivoDTO(eventos[i].dataValues);
+            eventosActivos.push(eventoActivo);
+        }
+        return eventosActivos;
+    }catch(e){
+        throw e;
+    }
+}
+
+
 }
 module.exports = EventoServices;

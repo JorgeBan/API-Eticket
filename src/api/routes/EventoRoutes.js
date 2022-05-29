@@ -14,4 +14,8 @@ router.put('/eventos/:id', EventoController.updateEvento);
 router.put('/eventos/estado/:id', validateUpdateEstado, EventoController.updateEstadoEvento);
 
 router.delete('/eventos/:id', EventoController.deleteEvento);
+
+
+//rutas para el manejo de los eventos del lado del cliente final
+router.get('/public/eventos', EventoController.getAllPublicEventos);
 module.exports = router;
