@@ -13,14 +13,10 @@ const swaggerSpec = {
             {
                 url: 'http://localhost:4000/api/v1.0.0',
                 description: 'Local server'
-            },
-            {
-                url: 'https://api-eticket.herokuapp.com/api/v1.0.0',
-                description: 'Heroku server'
             }
         ]
     },
 
-    apis: [`${path.join(__dirname, '../src/api/routes/*.js')}`]
+    apis: [`${path.join(__dirname, '../../../src/api/routes/*.js')}`]
 }
 module.exports = swaggerSpec;
