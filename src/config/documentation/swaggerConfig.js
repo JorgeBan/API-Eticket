@@ -13,11 +13,7 @@ const swaggerSpec = {
             {
                 url: 'http://localhost:4000/api/v1.0.0',
                 description: 'Local server'
-<<<<<<< HEAD
             }
-=======
-            },
->>>>>>> main
         ]
     },
 
