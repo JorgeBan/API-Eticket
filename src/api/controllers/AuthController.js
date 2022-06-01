@@ -25,7 +25,7 @@ async function verifyCount(req, res) {
         console.log("entro a verifyCount");
         const authServices = new AuthServices();
         const user = await authServices.verifyCount(req.params.token);
-        res.status(200).json(user);
+        res.status(200).send("Su email ha sido verificado, ya puede iniciar sesion");
     } catch (err) {
         res.status(err.status || 500).json(err);
     }

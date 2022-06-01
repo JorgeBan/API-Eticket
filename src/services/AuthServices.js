@@ -72,7 +72,7 @@ class AuthServices extends BaseService {
                 throw { status: 400, message: 'El usuario no existe' };
 
             const userUpdate = await this.authRepository.updateEstado(user.idusuario, "Verificado");
-            return { status: 200, message: 'Cuenta verificada' };
+            return userUpdate;
         } catch (err) {
             console.log(err);
             throw err;
