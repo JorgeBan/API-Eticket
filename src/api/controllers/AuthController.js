@@ -1,4 +1,3 @@
-
 const AuthServices = require('../../services/AuthServices');
 
 async function login(req, res) {
@@ -12,6 +11,7 @@ async function login(req, res) {
 }
 async function register(req, res) {
     try {
+        console.log("entro a register controller");
         const authServices = new AuthServices();
         const user = await authServices.register(req.body.nombre_usuario, req.body.email, req.body.contrasena, req.body.rol);
         res.status(201).header('authorization', 'Bearer ' + user.token).json(user);
@@ -20,7 +20,19 @@ async function register(req, res) {
     }
 }
 
+async function verifyCount(req, res) {
+    try {
+        console.log("entro a verifyCount");
+        const authServices = new AuthServices();
+        const user = await authServices.verifyCount(req.params.token);
+        res.status(200).json(user);
+    } catch (err) {
+        res.status(err.status || 500).json(err);
+    }
+}
+
 module.exports = {
     login,
-    register
+    register,
+    verifyCount
 }

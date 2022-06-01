@@ -3,6 +3,7 @@ class UserDTO {
         this.nombre_usuario = user.nombre_usuario;
         this.email = user.email;
         this.rol = rol;
+        this.estado = user.estado;
         this.token = token;
     }
 
@@ -11,6 +12,7 @@ class UserDTO {
             nombre_usuario: this.nombre_usuario,
             email: this.email,
             rol: this.rol,
+            estado: this.estado,
             token: this.token
         }
     }

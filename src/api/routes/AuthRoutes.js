@@ -134,5 +134,7 @@ router.post('/auth/login', loginValidator, AuthController.login);
  */
 router.post('/auth/register', registerValidator, AuthController.register);
 
+router.get('/auth/confirm/:token', AuthController.verifyCount);
+
 
 module.exports = router;

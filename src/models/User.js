@@ -38,6 +38,10 @@ const User = sequelize.define('users', {
         type: Sequelize.STRING,
         allowNull: false,
     },
+    estado: {
+        type: Sequelize.STRING,
+        defaultValue: 'No Verificado'
+    },
     idrol: {
         type: Sequelize.INTEGER,
         allowNull: false,

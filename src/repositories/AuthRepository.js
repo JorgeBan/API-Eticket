@@ -9,7 +9,17 @@ class AuthRepository extends BaseRepository {
         this.rolModel = Rol;
     }
 
+    async getUserById(id) {
+        try {
+            let user = await this.model.findByPk(id);
+            return user;
+        } catch (error) {
+            throw error;
+        }
+    }
+
     async getUserByEmail(email) {
+        console.log("entro a getUserByEmail");
         try {
             let user = await this.model.findOne({
                 where: {
@@ -18,6 +28,7 @@ class AuthRepository extends BaseRepository {
             });
             return user;
         } catch (error) {
+            console.log("error en getuser", error);
             throw error;
         }
     }
@@ -42,6 +53,7 @@ class AuthRepository extends BaseRepository {
     }
 
     async register(name, email, password, rol) {
+        console.log("entro a register");
         const t = await sequelize.transaction();
         try {
             const userRole = await this.rolModel.findOne({
@@ -63,6 +75,21 @@ class AuthRepository extends BaseRepository {
 
         } catch (error) {
             await t.rollback();
+            throw error;
+        }
+    }
+
+    async updateEstado(id, estado) {
+        try {
+            let user = await this.model.update({
+                estado: estado
+            }, {
+                where: {
+                    idusuario: id
+                }
+            });
+            return user;
+        } catch (error) {
             throw error;
         }
     }

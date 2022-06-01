@@ -10,10 +10,10 @@ const getToken = (payload) => {
 const getTokenData = (token) => {
     let data = null
     jwt.verify(token, process.env.AUTH_SECRET, (err, decoded) => {
-        console.log(decoded);
         if (err) {
             throw { status: 400, message: 'Token invalido' };
         } else {
+            console.log(decoded);
             data = decoded
         }
     });
