@@ -9,60 +9,69 @@ const Ubicacion = sequelize.define('ubicacion', {
         allowNull: false,
         primaryKey: true
     },
-    nombre:{
+    nombre: {
         type: Sequelize.STRING,
         allowNull: false,
-        validate:{
-            len:{
+        validate: {
+            len: {
                 args: [4, 255],
                 msg: 'Name must be between 4 and 255 characters'
             }
         }
     },
 
-    direccion:{
+    direccion: {
         type: Sequelize.STRING,
         allowNull: false,
-        validate:{
-            len:{
+        validate: {
+            len: {
                 args: [10, 255],
                 msg: 'Address must be between 10 and 255 characters'
             }
         }
     },
 
-    
-    latitud:{
-        type: Sequelize.DECIMAL(10,8),
+
+    latitud: {
+        type: Sequelize.DECIMAL(10, 8),
         allowNull: false,
     },
 
-    longitud:{
-        type: Sequelize.DECIMAL(10,8),
+    longitud: {
+        type: Sequelize.DECIMAL(10, 8),
         allowNull: false,
     },
 
-    cantidad_de_personas:{
-        type: Sequelize.INTEGER,
-        allowNull: false,
-    },
-    
-    idevento:{
+    cantidad_de_personas: {
         type: Sequelize.INTEGER,
         allowNull: false,
     },
 
-    capacidad_disponible:{
+    idevento: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+    },
+
+    capacidad_disponible: {
+        type: Sequelize.INTEGER,
+    },
+
+    precio: {
+        type: Sequelize.DECIMAL(6, 2),
+        defaultValue: 0,
+    },
+
+    entradas: {
         type: Sequelize.INTEGER,
     }
 
-},{
+}, {
     timestamps: false,
     freezeTableName: true,
 });
 
-Ubicacion.belongsTo(Evento, {foreignKey: 'idevento'});
-Evento.hasMany(Ubicacion, {foreignKey: 'idevento'});
+Ubicacion.belongsTo(Evento, { foreignKey: 'idevento' });
+Evento.hasMany(Ubicacion, { foreignKey: 'idevento' });
 
 
 module.exports = Ubicacion; 
