@@ -24,7 +24,7 @@ class EventoRepository extends BaseRepository {
                 include: [Categoria_evento, Ubicacion, Imagenes_evento]
             })
             return eventos;
-        }catch(e){
+        } catch (e) {
             throw e;
         }
     }
@@ -32,22 +32,22 @@ class EventoRepository extends BaseRepository {
     async getEventosDatosById(id) {
         try {
             const evento = await this.model.findByPk(id, {
-                include: [Categoria_evento, Ubicacion , Imagenes_evento]
+                include: [Categoria_evento, Ubicacion, Imagenes_evento]
             })
             return evento;
-        }catch (e) {
+        } catch (e) {
             throw e;
         }
     }
 
     async updateEvento(id, evento) {
         try {
-           
+
             const updatedEvento = await this.model.update(evento, {
                 where: { idevento: id }
             });
             return updatedEvento;
-        }catch (e) {
+        } catch (e) {
             throw e;
         }
     }
@@ -58,7 +58,7 @@ class EventoRepository extends BaseRepository {
                 where: { idevento: id }
             });
             return deletedEvento;
-        }catch (e) {
+        } catch (e) {
             throw e;
         }
     }
@@ -67,21 +67,21 @@ class EventoRepository extends BaseRepository {
         try {
             let updatedEvento;
 
-            if(evento.estado == 'Activo'){
+            if (evento.estado == 'Activo') {
                 let existsUbicacion = await this.model.findByPk(id, {
                     include: [Ubicacion]
-                });  
-                if(existsUbicacion.dataValues.ubicacions.length > 0){
-                        await this.model.update(evento, {
-                            where: { idevento: id }
-                        });
-                        updatedEvento = {
-                            message: 'Evento activado',
-                        }
-                }else{
-                    throw {status: 400, message: 'No pude activar el evento, no tiene ubicación, agregue una ubicación'}
+                });
+                if (existsUbicacion.dataValues.ubicacions.length > 0) {
+                    await this.model.update(evento, {
+                        where: { idevento: id }
+                    });
+                    updatedEvento = {
+                        message: 'Evento activado',
+                    }
+                } else {
+                    throw { status: 400, message: 'No pude activar el evento, no tiene ubicación, agregue una ubicación' }
                 }
-            }else{
+            } else {
                 await this.model.update(evento, {
                     where: { idevento: id }
                 });
@@ -90,7 +90,7 @@ class EventoRepository extends BaseRepository {
                 };
             }
             return updatedEvento;
-        }catch (e) {
+        } catch (e) {
 
             throw e;
         }
@@ -98,16 +98,46 @@ class EventoRepository extends BaseRepository {
 
     async getAllPublicEventos() {
         try {
-            const eventos = await this.model.findAll({                  
+            const eventos = await this.model.findAll({
                 where: {
                     estado: 'Activo',
                 },
                 include: [Categoria_evento, Imagenes_evento]
             })
             return eventos;
-        }catch(e){
+        } catch (e) {
 
             throw { status: 500, message: 'Error de servidor' };
+        }
+    }
+
+    async getPublicEventoByCategoria(id) {
+        try {
+            const eventos = await this.model.findAll({
+                where: {
+                    estado: 'Activo',
+                    idcategoria: id
+                },
+                include: [Categoria_evento, Imagenes_evento]
+            })
+            return eventos;
+        } catch (e) {
+            console.log(e);
+            throw { status: 500, message: 'Error de servidor' };
+        }
+    }
+
+    async getIdCategoria(categoria) {
+        try {
+            const categoria_evento = await Categoria_evento.findOne({
+                where: {
+                    nombre: categoria
+                }
+            })
+            if (!categoria_evento) throw { status: 404, message: 'No se encontro la categoria' };
+            return categoria_evento.dataValues.idcategoria;
+        } catch (e) {
+            throw e;
         }
     }
 }

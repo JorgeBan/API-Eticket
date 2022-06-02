@@ -20,16 +20,16 @@ class EventoServices extends BaseServices {
         try {
             const eventos = await this._eventoRepository.getAllEventosDatos();
             return eventos;
-        }catch(e){
+        } catch (e) {
             throw e;
-        } 
+        }
     }
 
     async getEventoEncabezadosById(id) {
         try {
             const evento = await this._eventoRepository.getById(id);
             return evento;
-        }catch(e){
+        } catch (e) {
             throw e;
         }
     }
@@ -38,16 +38,16 @@ class EventoServices extends BaseServices {
         try {
             const evento = await this._eventoRepository.getEventosDatosById(id);
             return evento;
-        }catch(e){
+        } catch (e) {
             throw e;
         }
     }
-    
+
     async updateEvento(id, evento) {
         try {
             const updatedEvento = await this._eventoRepository.updateEvento(id, evento);
             return updatedEvento;
-        }catch(e){
+        } catch (e) {
             throw e;
         }
     }
@@ -56,7 +56,7 @@ class EventoServices extends BaseServices {
         try {
             const deletedEvento = await this._eventoRepository.deleteEvento(id);
             return deletedEvento;
-        }catch(e){
+        } catch (e) {
             throw e;
         }
     }
@@ -65,27 +65,44 @@ class EventoServices extends BaseServices {
         try {
             const updatedEvento = await this._eventoRepository.updateEstadoEvento(id, evento);
             return updatedEvento;
-        }catch(e){
+        } catch (e) {
             throw e;
         }
 
     }
 
 
-async getAllPublicEventos() {
-    try {
-        let eventosActivos = []
-        const eventos = await this._eventoRepository.getAllPublicEventos();
-        for (let i = 0; i < eventos.length; i++) {
-            let eventoActivo = new EventoActivoDTO(eventos[i].dataValues);
-            eventosActivos.push(eventoActivo);
+    async getAllPublicEventos() {
+        try {
+            let eventosActivos = []
+            const eventos = await this._eventoRepository.getAllPublicEventos();
+            for (let i = 0; i < eventos.length; i++) {
+                let eventoActivo = new EventoActivoDTO(eventos[i].dataValues);
+                eventosActivos.push(eventoActivo);
+            }
+            return eventosActivos;
+        } catch (e) {
+            throw e;
         }
-        return eventosActivos;
-    }catch(e){
-        throw e;
     }
-}
 
+
+    async getPublicEventoByCategoria(categoria) {
+        try {
+            let eventosActivos = []
+            if (!categoria) throw { status: 400, message: 'Se requiere el nombre de la categoria' };
+            let idcategoria = await this._eventoRepository.getIdCategoria(categoria);
+            const eventos = await this._eventoRepository.getPublicEventoByCategoria(idcategoria);
+            for (let i = 0; i < eventos.length; i++) {
+                let eventoActivo = new EventoActivoDTO(eventos[i].dataValues);
+                eventosActivos.push(eventoActivo);
+            }
+            return eventosActivos;
+        } catch (e) {
+            console.log(e);
+            throw e;
+        }
+    }
 
 }
 module.exports = EventoServices;
