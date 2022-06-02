@@ -3,56 +3,66 @@ const HorarioServices = require('../../services/HorarioSerives');
 const horarioServices = new HorarioServices();
 
 async function getAllHorarios(req, res) {
-    try{
+    try {
         const horarios = await horarioServices.getAll();
         res.status(200).json(horarios);
-    }catch(err){
-        res.status(err.status||500).json(err);
+    } catch (err) {
+        res.status(err.status || 500).json(err);
     }
 }
 
 
 async function getHorarioById(req, res) {
-    try{
+    try {
         const horario = await horarioServices.getById(req.params.id);
         res.status(200).json(horario);
-    }catch(err){
-        res.status(err.status||500).json(err);
+    } catch (err) {
+        res.status(err.status || 500).json(err);
     }
 }
 
 async function createHorario(req, res) {
-    try{
+    try {
         const horario = await horarioServices.create(req.body);
         res.status(201).json(horario);
-    }catch(err){
-        res.status(err.status||500).json(err);
+    } catch (err) {
+        res.status(err.status || 500).json(err);
     }
 }
 
 async function updateHorario(req, res) {
-    try{
+    try {
         const horario = await horarioServices.updateHorario(req.params.id, req.body);
         res.status(200).json(horario);
-    }catch(err){
-        res.status(err.status||500).json(err);
+    } catch (err) {
+        res.status(err.status || 500).json(err);
     }
 }
 
 async function deleteHorario(req, res) {
-    try{
+    try {
         const horario = await horarioServices.deleteHorario(req.params.id);
         res.status(200).json(horario);
-    }catch(err){
-        res.status(err.status||500).json(err);
+    } catch (err) {
+        res.status(err.status || 500).json(err);
     }
 }
 
+//Funciones para el manejo de los eventos del lado del cliente final
+async function getHorariosByCategoria(req, res) {
+    try {
+        const horarios = await horarioServices.getHorariosByCategoria(req.params.idubicacion);
+        res.status(200).json(horarios);
+    } catch (err) {
+        res.status(err.status || 500).json(err);
+    }
+}
 
 module.exports = {
     getAllHorarios,
     getHorarioById,
     createHorario,
     updateHorario,
-    deleteHorario 
+    deleteHorario,
+    getHorariosByCategoria
 }
