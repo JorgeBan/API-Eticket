@@ -149,7 +149,7 @@ class EventoRepository extends BaseRepository {
                         model: Categoria_evento,
                         where: {
                             nombre: {
-                                [Op.like]: '%' + categoria + '%'
+                                [Op.iLike]: '%' + categoria + '%'
                             }
                         }
                     },
@@ -157,7 +157,7 @@ class EventoRepository extends BaseRepository {
                 ],
                 where: {
                     nombre: {
-                        [Op.like]: '%' + nombre + '%'
+                        [Op.iLike]: '%' + nombre + '%'
                     },
                     estado: 'Activo'
                 }
