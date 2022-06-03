@@ -20,6 +20,8 @@ class AuthServices extends BaseService {
                     const rol = await this.authRepository.getRolByid(existsUser.idrol);
                     const token = jwtConfig.getToken({ idusuario: existsUser.idusuario, rol: rol.nombre, estado: existsUser.estado });
                     const userDTO = new UserDTO(existsUser, rol.nombre, token);
+                    console.log(userDTO);
+                    if (userDTO.estado === "No Verificado") throw { status: 401, message: 'Su cuenta no ha sido verificada, por favor verifique su correo' };
                     return userDTO;
                 }
                 throw { status: 400, message: 'Contraseña incorrecta' };
