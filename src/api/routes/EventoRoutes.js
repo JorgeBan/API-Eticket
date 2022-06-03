@@ -52,12 +52,26 @@ router.delete('/eventos/:id', EventoController.deleteEvento);
  *  
 */
 
+//router.get('/public/eventos', EventoController.getAllPublicEventos);
+
+
+//router.get('/public/eventos/filtro', EventoController.getPublicEventoByCategoria);
+
+
 /**
  * @swagger
  *   /public/eventos:
  *     get:
  *       summary: Obtiene todos los eventos publicos y activos
+ *       description: Obtiene todos los eventos publicos y activos, se puede filtrar por categoria, nombre o ambos
  *       tags: [EventoPublico]
+ *       parameters:
+ *         - in: query
+ *           name: categoria
+ *           description: categoria del evento (Opcional)
+ *         - in: query
+ *           name: nombre
+ *           description: nombre del evento (Opcional)
  *       responses: 
  *         200:
  *           description: Lista de eventos publicos y activos
@@ -67,52 +81,11 @@ router.delete('/eventos/:id', EventoController.deleteEvento);
  *                 type: array
  *                 items:
  *                  $ref: '#/components/schemas/EventoActivo'
+ *         500:
+ *           description: Error del servidor
  * 
  */
-router.get('/public/eventos', EventoController.getAllPublicEventos);
+router.get('/public/eventos', EventoController.getAllEventos);
 
-/**
- * @swagger
- *  /public/eventos/filtro:
- *   get:
- *     summary: Obtiene todos los eventos publicos y activos filtrados por categoria
- *     tags: [EventoPublico]
- *     parameters:
- *       - in: query
- *         name: categoria
- *         required: true
- *     responses:
- *       200:
- *         description: Lista de eventos publicos y activos filtrados por categoria
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/EventoActivo'
- *       
- *       400: 
- *         description: Se require el nombre de la categoria
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               $ref: '#/components/schemas/errorResponse'
- *             example:
- *               status: 400
- *               message: Se require el nombre de la categoria
- *       404:
- *         description: No se encontro la categoria
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               $ref: '#/components/schemas/errorResponse'
- *             example:
- *               status: 404
- *               message: No se encontro la categoria
- *          
- *         
- */
-router.get('/public/eventos/filtro', EventoController.getPublicEventoByCategoria);
+
 module.exports = router;

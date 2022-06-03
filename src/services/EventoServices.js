@@ -104,5 +104,19 @@ class EventoServices extends BaseServices {
         }
     }
 
+    async getAllEventos(categoria, nombre) {
+        try {
+            let eventosActivos = []
+            const eventos = await this._eventoRepository.getAllEventos(categoria, nombre);
+            for (let i = 0; i < eventos.length; i++) {
+                let eventoActivo = new EventoActivoDTO(eventos[i].dataValues);
+                eventosActivos.push(eventoActivo);
+            }
+            return eventosActivos;
+        } catch (e) {
+            throw e;
+        }
+    }
+
 }
 module.exports = EventoServices;

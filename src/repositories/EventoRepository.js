@@ -3,7 +3,7 @@ const Categoria_evento = require('../models/Categoria_evento');
 const Ubicacion = require('../models/Ubicacion');
 const Imagenes_evento = require('../models/Imagenes_evento');
 const BaseRepository = require('../repositories/BaseRepository');
-
+const { Op } = require('sequelize');
 class EventoRepository extends BaseRepository {
     constructor() {
         super(Evento);
@@ -136,6 +136,33 @@ class EventoRepository extends BaseRepository {
             })
             if (!categoria_evento) throw { status: 404, message: 'No se encontro la categoria' };
             return categoria_evento.dataValues.idcategoria;
+        } catch (e) {
+            throw e;
+        }
+    }
+
+    async getAllEventos(categoria, nombre) {
+        try {
+            const eventos = await this.model.findAll({
+                include: [
+                    {
+                        model: Categoria_evento,
+                        where: {
+                            nombre: {
+                                [Op.like]: '%' + categoria + '%'
+                            }
+                        }
+                    },
+                    { model: Imagenes_evento }
+                ],
+                where: {
+                    nombre: {
+                        [Op.like]: '%' + nombre + '%'
+                    },
+                    estado: 'Activo'
+                }
+            })
+            return eventos;
         } catch (e) {
             throw e;
         }
