@@ -15,30 +15,34 @@ const Espacio = sequelize.define('espacio', {
         allowNull: false,
     },
 
-    estado:{
+    estado: {
         type: Sequelize.STRING,
         allowNull: false,
         defaultValue: 'Disponible',
     },
 
-    tipo_de_espacio:{
+    tipo_de_espacio: {
         type: Sequelize.STRING,
         allowNull: false,
     },
 
-    cantidad_de_personas:{
+    cantidad_de_personas: {
         type: Sequelize.INTEGER,
         allowNull: false,
     },
-    idsector:{
+    idsector: {
         type: Sequelize.INTEGER,
         allowNull: false,
+    },
+    precio: {
+        type: Sequelize.DECIMAL(6, 2),
+        defaultValue: 0,
     }
-},{
+}, {
     timestamps: false,
     freezeTableName: true,
 });
-Espacio.belongsTo(Sector, {foreignKey: 'idsector'});
-Sector.hasMany(Espacio, {foreignKey: 'idsector'});
+Espacio.belongsTo(Sector, { foreignKey: 'idsector' });
+Sector.hasMany(Espacio, { foreignKey: 'idsector' });
 
 module.exports = Espacio;

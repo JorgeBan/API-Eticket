@@ -1,13 +1,15 @@
-class SectorDTO{
-    constructor(sector){
+class SectorDTO {
+    constructor(sector) {
         this.nombre = sector.nombre;
         this.capacidad = sector.capacidad;
         this.referencia = sector.referencia;
         this.idubicacion = sector.idubicacion;
         this.capacidad_disponible = sector.capacidad;
+
+        this.precio = sector.precio || 0;
     }
 
-    toJSON(){
+    toJSON() {
         return {
             nombre: this.nombre,
             capacidad: this.capacidad,

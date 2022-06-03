@@ -9,40 +9,44 @@ const Sector = sequelize.define('sector', {
         allowNull: false,
         primaryKey: true
     },
-    nombre:{
+    nombre: {
         type: Sequelize.STRING,
         allowNull: false,
-        validate:{
-            len:{
+        validate: {
+            len: {
                 args: [4, 255],
                 msg: 'Name must be between 4 and 255 characters'
             }
         }
     },
 
-    capacidad:{
+    capacidad: {
         type: Sequelize.INTEGER,
         allowNull: false,
     },
 
-    referencia:{
+    referencia: {
         type: Sequelize.STRING,
         allowNull: true,
     },
-    
-    idubicacion:{
+
+    idubicacion: {
         type: Sequelize.INTEGER,
         allowNull: false,
     },
-    capacidad_disponible:{
+    capacidad_disponible: {
         type: Sequelize.INTEGER,
-    } 
+    },
+    precio: {
+        type: Sequelize.DECIMAL(6, 2),
+        defaultValue: 0,
+    }
 
-},{
+}, {
     timestamps: false,
     freezeTableName: true,
 });
 
-Sector.belongsTo(Ubicacion, {foreignKey: 'idubicacion'});
-Ubicacion.hasMany(Sector, {foreignKey: 'idubicacion'});
+Sector.belongsTo(Ubicacion, { foreignKey: 'idubicacion' });
+Ubicacion.hasMany(Sector, { foreignKey: 'idubicacion' });
 module.exports = Sector;

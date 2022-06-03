@@ -55,16 +55,12 @@ const Ubicacion = sequelize.define('ubicacion', {
     capacidad_disponible: {
         type: Sequelize.INTEGER,
     },
-    /*
-        precio: {
-            type: Sequelize.DECIMAL(6, 2),
-            defaultValue: 0,
-        },
-    
-        entradas: {
-            type: Sequelize.INTEGER,
-        }
-    */
+
+    precio: {
+        type: Sequelize.DECIMAL(6, 2),
+        defaultValue: 0,
+    },
+
 }, {
     timestamps: false,
     freezeTableName: true,

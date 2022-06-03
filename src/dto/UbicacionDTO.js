@@ -7,9 +7,8 @@ class UbicacionDTO {
         this._cantidad_de_personas = Ubicacion.cantidad_de_personas;
         this._idevento = Ubicacion.idevento;
         this._capacidad_disponible = Ubicacion.cantidad_de_personas;
-        /*
-                this._entradas = Ubicacion.cantidad_de_personas
-                this._precios = Ubicacion.precio || 0;*/
+
+        this._precio = Ubicacion.precio || 0;
     }
 
     toJSON() {
