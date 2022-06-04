@@ -34,18 +34,18 @@ class SectorRepository extends BaseRepository {
     }
 
     async createSector(sector) {
-        try{
+        try {
             let capacidad_sector = sector.capacidad;
             let capacidad_disponible_ubicacion = await Repofunciones._capacidadDisponibleUbicacion(sector.idubicacion);
-            if(capacidad_sector <= capacidad_disponible_ubicacion){
+            if (capacidad_sector <= capacidad_disponible_ubicacion) {
                 let sectorDTO = new SectorDTO(sector);
                 const newSector = await this.model.create(sectorDTO.toJSON());
                 await Repofunciones._updateCapacidadUbicaion(sector.idubicacion, capacidad_disponible_ubicacion - capacidad_sector);
-                return newSector; 
-            }else{
-                throw {status: 400 , message : "No hay espacio suficiente en la ubicacion, hay " + capacidad_disponible_ubicacion + " espacios disponibles para asignar"};
-            }       
-        }catch(e){
+                return newSector;
+            } else {
+                throw { status: 400, message: "No hay espacio suficiente en la ubicacion, hay " + capacidad_disponible_ubicacion + " espacios disponibles para asignar" };
+            }
+        } catch (e) {
             throw e;
         }
     }
@@ -56,29 +56,29 @@ class SectorRepository extends BaseRepository {
             let sectorActual = await this.model.findByPk(id, {
                 include: [Espacio]
             });
-            console.log("Sector actual: "+sectorActual)
+            console.log("Sector actual: " + sectorActual)
             const capacidad_sector = newSector.capacidad;
             const diferenciaCapacidad = capacidad_sector - sectorActual.capacidad;
-            console.log("Diferencia de capacidad: "+diferenciaCapacidad);
-            if(diferenciaCapacidad != 0){
+            console.log("Diferencia de capacidad: " + diferenciaCapacidad);
+            if (diferenciaCapacidad != 0) {
                 const capacidadUbicacion = await Repofunciones._capacidadDisponibleUbicacion(sectorActual.idubicacion)
-                if(Repofunciones._permiteActulizar(diferenciaCapacidad, sectorActual, newSector, capacidadUbicacion)){
+                if (Repofunciones._permiteActulizar(diferenciaCapacidad, sectorActual, newSector, capacidadUbicacion)) {
                     let sectorDTO = new SectorDTO(newSector);
                     let nuevaCapacidadDisponible = sectorActual.capacidad_disponible + diferenciaCapacidad;
                     sectorDTO.capacidad_disponible = nuevaCapacidadDisponible;
                     const updatedSector = await this.model.update(sectorDTO.toJSON(), {
                         where: { idsector: id }
-                    }); 
+                    });
                     await Repofunciones._updateCapacidadUbicaion(sectorActual.idubicacion, capacidadUbicacion - diferenciaCapacidad);
                     return updatedSector;
                 }
-            }else{
+            } else {
                 const updatedSector = await this.model.update(newSector, {
                     where: { idsector: id }
                 });
                 return updatedSector;
             }
-            
+
         } catch (e) {
             throw e;
         }
@@ -92,6 +92,18 @@ class SectorRepository extends BaseRepository {
             });
             Repofunciones._actualizarCapacidadUbicacion(sector);
             return deletedSector;
+        } catch (e) {
+            throw e;
+        }
+    }
+
+    //Repositorio para el manejo de los sectores del lado del cliente final+
+    async getSectoresByUbicacion(idubicacion) {
+        try {
+            const sectores = await this.model.findAll({
+                where: { idubicacion: idubicacion },
+            });
+            return sectores;
         } catch (e) {
             throw e;
         }
