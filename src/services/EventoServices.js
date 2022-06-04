@@ -1,6 +1,7 @@
 const BaseServices = require('./BaseServices');
 const EventoRepository = require('../repositories/EventoRepository');
 const EventoActivoDTO = require('../dto/evento/EventoActivoDTO');
+const EventoDetalleDTO = require('../dto/evento/EventoDetalleDTO');
 class EventoServices extends BaseServices {
     constructor() {
         super(new EventoRepository());
@@ -103,7 +104,7 @@ class EventoServices extends BaseServices {
             throw e;
         }
     }
-
+    //----------------------------------------------------------------------------------------------------------------------
     async getAllEventos(categoria, nombre) {
         try {
             let eventosActivos = []
@@ -118,5 +119,17 @@ class EventoServices extends BaseServices {
         }
     }
 
+    async getEventoById(id) {
+        try {
+            const evento = await this._eventoRepository.getEventoById(id);
+            if (!evento) throw { status: 404, message: 'El evento no existe' };
+            let eventoDetalleDTO = new EventoDetalleDTO(evento.dataValues);
+            return eventoDetalleDTO;
+        } catch (e) {
+            console.log(e);
+            throw e;
+        }
+    }
+    //----------------------------------------------------------------------------------------------------------------------
 }
 module.exports = EventoServices;

@@ -4,6 +4,7 @@ const Ubicacion = require('../models/Ubicacion');
 const Imagenes_evento = require('../models/Imagenes_evento');
 const BaseRepository = require('../repositories/BaseRepository');
 const { Op } = require('sequelize');
+const Horario = require('../models/Horario');
 class EventoRepository extends BaseRepository {
     constructor() {
         super(Evento);
@@ -140,7 +141,7 @@ class EventoRepository extends BaseRepository {
             throw e;
         }
     }
-
+    //---------------------------------------------------------------------------------------------------------------------
     async getAllEventos(categoria, nombre) {
         try {
             const eventos = await this.model.findAll({
@@ -167,6 +168,24 @@ class EventoRepository extends BaseRepository {
             throw e;
         }
     }
+
+    async getEventoById(id) {
+        try {
+            const eventos = await this.model.findByPk(id, {
+                include: [
+                    { model: Categoria_evento },
+                    { model: Imagenes_evento },
+                    { model: Ubicacion }
+                ]
+            })
+
+            return eventos;
+        } catch (e) {
+            console.log(e);
+            throw e;
+        }
+    }
+    //---------------------------------------------------------------------------------------------------------------------
 }
 
 module.exports = EventoRepository;

@@ -94,7 +94,7 @@ async function getPublicEventoByCategoria(req, res) {
         res.status(err.status || 500).json(err);
     }
 }
-
+//--------------------------------------------------------------------
 async function getAllEventos(req, res) {
     try {
         let categoria = req.query.categoria || "";
@@ -105,6 +105,16 @@ async function getAllEventos(req, res) {
         res.status(err.status || 500).json(err);
     }
 }
+
+async function getEventoById(req, res) {
+    try {
+        const evento = await eventoServices.getEventoById(req.params.id);
+        res.status(200).json(evento);
+    } catch (err) {
+        res.status(err.status || 500).json(err);
+    }
+}
+//------------------------------------------------------------------------
 module.exports = {
     getAllEventoEncabezados,
     getAllEventosDatos,
@@ -116,5 +126,6 @@ module.exports = {
     updateEstadoEvento,
     getAllPublicEventos,
     getPublicEventoByCategoria,
-    getAllEventos
+    getAllEventos,
+    getEventoById
 }
