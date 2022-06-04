@@ -20,8 +20,7 @@ class UbicacionDTO {
             cantidad_de_personas: this._cantidad_de_personas,
             idevento: this._idevento,
             capacidad_disponible: this._capacidad_disponible,
-            precio: this._precios,
-            entradas: this._entradas
+            precio: this._precio
         }
     }
 }

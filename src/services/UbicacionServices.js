@@ -9,47 +9,48 @@ class UbicacionServices extends BaseServices {
     }
 
     async getAllUbicaciones() {
-        try{
+        try {
             const ubicaciones = await this._ubicacionRepository.getAllUbicaciones();
             return ubicaciones;
-        }catch(error){
+        } catch (error) {
             console.log(error);
             throw error;
         }
     }
 
     async getUbicacionById(id) {
-        try{
+        try {
             const ubicacion = await this._ubicacionRepository.getUbicacionById(id);
             return ubicacion;
-        }catch(error){
+        } catch (error) {
             throw error;
         }
     }
 
     async createUbicacion(ubicacion) {
-        try{
+        try {
             const newUbicacion = await this._ubicacionRepository.createUbicacion(ubicacion);
+            console.log(newUbicacion);
             return newUbicacion;
-        }catch(error){
+        } catch (error) {
             throw error;
         }
     }
 
     async updateUbicacion(id, ubicacion) {
-        try{
+        try {
             const updatedUbicacion = await this._ubicacionRepository.updateUbicacion(id, ubicacion);
             return updatedUbicacion;
-        }catch(error){
+        } catch (error) {
             throw error;
         }
     }
 
     deleteUbicacion(id) {
-        try{
+        try {
             const deletedUbicacion = this._ubicacionRepository.deleteUbicacion(id);
             return deletedUbicacion;
-        }catch(error){
+        } catch (error) {
             throw error;
         }
     }

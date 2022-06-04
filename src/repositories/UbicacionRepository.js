@@ -3,7 +3,7 @@ const BaseRepository = require('../repositories/BaseRepository');
 const Horario = require('../models/Horario');
 const Sector = require('../models/Sector');
 const UbicacionDTO = require('../dto/UbicacionDTO');
-const Repofunciones  = require('../extras/UbicacionExtrasRepo');
+const Repofunciones = require('../extras/UbicacionExtrasRepo');
 
 class UbicacionRepository extends BaseRepository {
     constructor() {
@@ -11,69 +11,70 @@ class UbicacionRepository extends BaseRepository {
     }
 
     async getAllUbicaciones() {
-        try{
+        try {
             const ubicaciones = await this.model.findAll({
                 include: [Horario, Sector]
             });
             return ubicaciones;
-        }catch(error){
+        } catch (error) {
             console.log(error);
             throw error;
         }
     }
 
     async getUbicacionById(id) {
-        try{
+        try {
             const ubicacion = await this.model.findByPk(id, {
                 include: [Horario, Sector]
             });
             return ubicacion;
-        }catch(error){
+        } catch (error) {
             throw error;
         }
     }
 
 
     async createUbicacion(ubicacion) {
-        try{
+        try {
             let ubicacionDTO = new UbicacionDTO(ubicacion);
             const newUbicacion = await this.model.create(ubicacionDTO.toJSON());
             return newUbicacion;
-        }catch(error){
+        } catch (error) {
             throw error;
         }
     }
 
     async updateUbicacion(id, newUbicacion) {
-        try{
+        try {
             let ubicacionActual = await Ubicacion.findByPk(id, {
                 include: [Sector],
             });
 
-            if(Repofunciones._permiteEditar(ubicacionActual, newUbicacion)){
+            console.log("dsdsd", newUbicacion);
+            if (Repofunciones._permiteEditar(ubicacionActual, newUbicacion)) {
                 let diferenciaCapacidad = newUbicacion.cantidad_de_personas - ubicacionActual.cantidad_de_personas;
                 let capacidadActual = ubicacionActual.capacidad_disponible;
                 let capacidadNueva = capacidadActual + diferenciaCapacidad;
                 let ubicacionDTO = new UbicacionDTO(newUbicacion);
-                ubicacionDTO._capacidad_disponible = capacidadNueva;    
+                ubicacionDTO._capacidad_disponible = capacidadNueva;
                 return Ubicacion.update(ubicacionDTO.toJSON(), {
                     where: { idubicacion: id }
                 });
-            }else{
+            } else {
                 throw { status: 400, message: "No se puede reducir la capacidad de la ubicacion, hay sectores asignados, edite o elimine algun sector para continuar" };
             }
-        }catch(error){
+        } catch (error) {
             throw error;
         }
     }
 
     async deleteUbicacion(id) {
-        try{
+        try {
             const deletedUbicacion = await this.model.destroy({
                 where: { idubicacion: id }
             });
             return deletedUbicacion;
-        }catch(error){
+        } catch (error) {
             throw error;
         }
     }

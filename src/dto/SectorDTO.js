@@ -15,7 +15,8 @@ class SectorDTO {
             capacidad: this.capacidad,
             referencia: this.referencia,
             idubicacion: this.idubicacion,
-            capacidad_disponible: this.capacidad_disponible
+            capacidad_disponible: this.capacidad_disponible,
+            precio: this.precio
         }
     }
 }

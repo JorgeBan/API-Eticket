@@ -1,9 +1,9 @@
 
-function _permiteEditar(ubicacionActual, newUbicacion){
-    
-    if(newUbicacion.cantidad_de_personas >= ubicacionActual.cantidad_de_personas){
+function _permiteEditar(ubicacionActual, newUbicacion) {
+
+    if (newUbicacion.cantidad_de_personas >= ubicacionActual.cantidad_de_personas) {
         return true;
-    }else{
+    } else {
         let capacidadSectores = 0;
         for (let i = 0; i < ubicacionActual.sectors.length; i++) {
             capacidadSectores += ubicacionActual.sectors[i].capacidad;
