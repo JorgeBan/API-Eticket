@@ -68,6 +68,20 @@ class SectorServices extends BaseServices {
             throw error;
         }
     }
+    async getEntradasDisponibles(idhorario, idsector) {
+        try {
+            if (isNaN(idhorario) || isNaN(idsector)) throw { status: 400, message: 'idhorario y idsector deben ser numeros' };
+            const cantidad_vendidas = await this._sectorRepository.getEntradasDisponibles(idhorario, idsector);
+            const cantidad_personas = await this._sectorRepository.getCantidadDePersonas(idsector);
+            const cantidad_disponible = cantidad_personas - cantidad_vendidas;
+            return cantidad_disponible;
+        } catch (error) {
+            console.log(error);
+            throw error;
+        }
+
+
+    }
 }
 
 module.exports = SectorServices;

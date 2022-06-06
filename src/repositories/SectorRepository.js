@@ -4,7 +4,7 @@ const Ubicacion = require('../models/Ubicacion');
 const BaseRepository = require('../repositories/BaseRepository');
 const Repofunciones = require('../extras/SectorExtrasRepo');
 const SectorDTO = require('../dto/SectorDTO');
-
+const Entradas_sector = require('../models/Entradas_sector');
 class SectorRepository extends BaseRepository {
     constructor() {
         super(Sector);
@@ -106,6 +106,35 @@ class SectorRepository extends BaseRepository {
             return sectores;
         } catch (e) {
             throw e;
+        }
+    }
+
+    async getEntradasDisponibles(idhorario, idsector) {
+        try {
+            const entradas_vendidas = await Entradas_sector.findOne({
+                attributes: ['cantidad_vendida'],
+                where: {
+                    idhorario: idhorario,
+                    idsector: idsector
+                }
+            });
+            if (!entradas_vendidas) throw { status: 404, message: "NO hay sector con ese horario" };
+            return entradas_vendidas.dataValues.cantidad_vendida;
+        } catch (error) {
+            console.log(error);
+            throw error;
+        }
+    }
+
+    async getCantidadDePersonas(idsector) {
+        try {
+            const sector = await this.model.findByPk(idsector, {
+                attributes: ['capacidad']
+            });
+            if (!sector) throw { status: 404, message: "NO hay sector con ese id" };
+            return sector.capacidad;
+        } catch (error) {
+            throw error;
         }
     }
 }

@@ -56,11 +56,21 @@ async function getSectoresByUbicacion(req, res) {
         res.status(err.status || 500).json(err);
     }
 }
+
+async function getEntradasDisponibles(req, res) {
+    try {
+        const entradas = await sectorServices.getEntradasDisponibles(req.query.idhorario, req.query.idsector);
+        res.status(200).json(entradas);
+    } catch (err) {
+        res.status(err.status || 500).json(err);
+    }
+}
 module.exports = {
     getAllSectores,
     getSectorById,
     createSector,
     updateSector,
     deleteSector,
-    getSectoresByUbicacion
+    getSectoresByUbicacion,
+    getEntradasDisponibles
 }

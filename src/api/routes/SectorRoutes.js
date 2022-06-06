@@ -79,4 +79,55 @@ router.delete('/sectores/:id', SectorController.deleteSector);
  */
 
 router.get('/public/sectores/:idubicacion', SectorController.getSectoresByUbicacion);
+//Obtener la cantidad de entradas disponibles para un horario en un sector
+/**
+ * @swagger
+ *   /public/sectores/entradas/disponibles:
+ *     get:
+ *       summary: Obtiene los sectores disponibles para un horario
+ *       tags: [Sector]
+ *       parameters:
+ *         - in: query
+ *           name: idhorario
+ *           required: true
+ *         - in: query
+ *           name: idsector
+ *           required: true
+ *       responses:
+ *         200:
+ *           description: Devuelve la cantidad de entradas disponibles
+ *         400:
+ *           description: El id del horario o el sector debe ser un numero
+ *           content:
+ *              application/json:
+ *                schema:
+ *                  type: object
+ *                  properties:
+ *                    status: 
+ *                      type: integer
+ *                    message:
+ *                      type: string
+ *                  example:
+ *                    status: 400
+ *                    message: El id del horario o el sector debe ser un numero
+ *         404:
+ *           description: No se encontro el horario o la ubicacion
+ *           content:
+ *             application/json:
+ *               schema:
+ *                 type: object
+ *                 properties:
+ *                   status:
+ *                     type: integer
+ *                   message:
+ *                     type: string
+ *                 example:
+ *                   status: 404
+ *                   message: NO hay sector con ese id 
+
+ *                  
+ */
+router.get('/public/sectores/entradas/disponibles', SectorController.getEntradasDisponibles);
+
+
 module.exports = router;
