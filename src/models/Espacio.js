@@ -15,12 +15,6 @@ const Espacio = sequelize.define('espacio', {
         allowNull: false,
     },
 
-    estado: {
-        type: Sequelize.STRING,
-        allowNull: false,
-        defaultValue: 'Disponible',
-    },
-
     tipo_de_espacio: {
         type: Sequelize.STRING,
         allowNull: false,
