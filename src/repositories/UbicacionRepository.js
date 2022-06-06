@@ -4,7 +4,7 @@ const Horario = require('../models/Horario');
 const Sector = require('../models/Sector');
 const UbicacionDTO = require('../dto/UbicacionDTO');
 const Repofunciones = require('../extras/UbicacionExtrasRepo');
-
+const Entradas_ubicacion = require('../models/Entradas_ubicacion');
 class UbicacionRepository extends BaseRepository {
     constructor() {
         super(Ubicacion);
@@ -75,6 +75,35 @@ class UbicacionRepository extends BaseRepository {
             });
             return deletedUbicacion;
         } catch (error) {
+            throw error;
+        }
+    }
+
+    //repositorio para el lado del cliente final
+    async getCantidadDePersonas(idubicacion) {
+        try {
+            const ubicacion = await this.model.findByPk(idubicacion, {
+                attributes: ['cantidad_de_personas']
+            });
+            if (!ubicacion) throw { status: 404, message: "NO hay ubicacion con ese id" };
+            return ubicacion.cantidad_de_personas;
+        } catch (error) {
+            throw error;
+        }
+    }
+    async getEntradasDisponibles(idhorario, idubicacion) {
+        try {
+            const entradas_vendidas = await Entradas_ubicacion.findOne({
+                attributes: ['cantidad_vendida'],
+                where: {
+                    idhorario: idhorario,
+                    idubicacion: idubicacion
+                }
+            });
+            if (!entradas_vendidas) throw { status: 404, message: "NO hay ubicacion con ese horario" };
+            return entradas_vendidas.dataValues.cantidad_vendida;
+        } catch (error) {
+            console.log(error);
             throw error;
         }
     }

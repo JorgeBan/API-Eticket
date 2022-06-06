@@ -54,6 +54,20 @@ class UbicacionServices extends BaseServices {
             throw error;
         }
     }
+
+    //Servicios para el lado del cliente final
+    async getEntradasDisponibles(idhorario, idubicacion) {
+        try {
+            if (isNaN(idhorario) || isNaN(idubicacion)) throw { status: 400, message: 'idhorario y idubicacion deben ser numeros' };
+            const cantidad_vendidas = await this._ubicacionRepository.getEntradasDisponibles(idhorario, idubicacion);
+            const cantidad_personas = await this._ubicacionRepository.getCantidadDePersonas(idubicacion);
+            const cantidad_disponible = cantidad_personas - cantidad_vendidas;
+            return cantidad_disponible;
+        } catch (error) {
+            console.log(error);
+            throw error;
+        }
+    }
 }
 
 module.exports = UbicacionServices;

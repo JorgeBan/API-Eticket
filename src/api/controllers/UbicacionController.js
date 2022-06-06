@@ -46,11 +46,20 @@ async function deleteUbicacion(req, res) {
         res.status(err.status || 500).json(err);
     }
 }
-
+//funciones para el lado del cliente final
+async function getEntradasDisponibles(req, res) {
+    try {
+        const ubicaciones = await ubicacionServices.getEntradasDisponibles(req.query.idhorario, req.query.idubicacion);
+        res.status(200).json(ubicaciones);
+    } catch (err) {
+        res.status(err.status || 500).json(err);
+    }
+}
 module.exports = {
     getAllUbicaciones,
     getUbicacionById,
     createUbicacion,
     updateUbicacion,
-    deleteUbicacion
+    deleteUbicacion,
+    getEntradasDisponibles
 }
