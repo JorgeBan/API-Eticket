@@ -5,7 +5,7 @@ class EspacioDTO {
         this._cantidad_de_personas = espacio.cantidad_de_personas;
         this._idsector = espacio.idsector;
 
-        this._precio = espacio.precio || 0;
+        this._precio = espacio.precio;
     }
 
     toJSON() {
@@ -13,7 +13,8 @@ class EspacioDTO {
             identificador: this._identificador,
             tipo_de_espacio: this._tipo_de_espacio,
             cantidad_de_personas: this._cantidad_de_personas,
-            idsector: this._idsector
+            idsector: this._idsector,
+            precio: this._precio
         }
     }
 }
