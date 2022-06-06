@@ -3,19 +3,15 @@ const sequelize = require('../config/database/database');
 const Ubicacion = require('../models/Ubicacion');
 const Horario = require('../models/Horario');
 const Entradas_ubicacion = sequelize.define('entradas_ubicacion', {
-    idcantidad: {
-        type: Sequelize.INTEGER,
-        autoIncrement: true,
-        primaryKey: true,
-        allowNull: false,
-    },
     idhorario: {
         type: Sequelize.INTEGER,
+        primaryKey: true,
         allowNull: false,
     },
 
     idubicacion: {
         type: Sequelize.INTEGER,
+        primaryKey: true,
         allowNull: false,
     },
     cantidad_vendida: {

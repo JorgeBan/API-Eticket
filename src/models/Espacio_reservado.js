@@ -5,18 +5,14 @@ const Horario = require('./Horario');
 
 
 const Espacio_reservado = sequelize.define('espacio_reservado', {
-    idreserva: {
-        type: Sequelize.INTEGER,
-        autoIncrement: true,
-        primaryKey: true,
-        allowNull: false,
-    },
     idhorario: {
         type: Sequelize.INTEGER,
+        primaryKey: true,
         allowNull: false,
     },
     idespacio: {
         type: Sequelize.INTEGER,
+        primaryKey: true,
         allowNull: false,
     }
 }, {

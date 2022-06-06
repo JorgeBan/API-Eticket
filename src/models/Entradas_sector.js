@@ -5,18 +5,14 @@ const Horario = require('../models/Horario');
 
 
 const Entradas_sector = sequelize.define('entradas_sector', {
-    idcantidad: {
-        type: Sequelize.INTEGER,
-        autoIncrement: true,
-        primaryKey: true,
-        allowNull: false,
-    },
     idhorario: {
         type: Sequelize.INTEGER,
+        primaryKey: true,
         allowNull: false,
     },
     idsector: {
         type: Sequelize.INTEGER,
+        primaryKey: true,
         allowNull: false,
     },
     cantidad_vendida: {
