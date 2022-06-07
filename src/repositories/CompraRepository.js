@@ -11,7 +11,10 @@ const _ubicacion_repository = new Ubicacion_repository();
 const Sector_repository = require('../repositories/SectorRepository');
 const _sector_repository = new Sector_repository();
 
-
+const Espacio_repository = require('../repositories/EspacioRepository');
+const Espacio = require('../models/Espacio');
+const Sector = require('../models/Sector');
+const _espacio_repository = new Espacio_repository();
 class CompraRepository extends BaseRepository {
     constructor() {
         super(Nota_venta);
@@ -28,10 +31,15 @@ class CompraRepository extends BaseRepository {
         }
     }
 
-    async entradasDisponiblesSector(idhorario, idsector) {
+    async entradasDisponiblesSector(idhorario, idubicacion, idsector) {
         try {
-            const sector = await _sector_repository.getSectorById(idsector);
-            if (!sector) throw { status: 404, message: 'Sector no encontrado' };
+            const sector = await Sector.findOne({
+                where: {
+                    idsector: idsector,
+                    idubicacion: idubicacion,
+                }
+            });
+            if (!sector) throw { status: 404, message: 'Sector no encontrado, o no corresponde a la ubicacion' };
             const entradas_vendidas = await _sector_repository.getEntradasDisponibles(idhorario, idsector);
             const total_entradas = await _sector_repository.getCantidadDePersonas(idsector);
             return {
@@ -44,11 +52,17 @@ class CompraRepository extends BaseRepository {
         }
     }
 
-    async verificarEspacio(idhorario, idespacio) {
+    async verificarEspacio(idhorario, idsector, idespacio) {
         try {
-            const espacio = await _ubicacion_repository.getEspacioById(idespacio);
-            if (!espacio) throw { status: 404, message: 'Espacio no encontrado' };
-            const espacioReservado = Espacio_reservado.findOne({
+
+            const verificaEspacio = await Espacio.findOne({
+                where: {
+                    idespacio: idespacio,
+                    idsector: idsector,
+                }
+            });
+            if (!verificaEspacio) throw { status: 404, message: 'Espacio no encontrado, o no corresponde al sector' };
+            const espacioReservado = await Espacio_reservado.findOne({
                 where: {
                     idespacio,
                     idhorario,
@@ -56,12 +70,12 @@ class CompraRepository extends BaseRepository {
             });
             if (espacioReservado) {
                 return {
-                    identificador: espacio.identificador,
+                    identificador: verificaEspacio.identificador,
                     disponible: false
                 };
             }
             return {
-                identificador: espacio.identificador,
+                identificador: verificaEspacio.identificador,
                 disponible: true
             };
 
