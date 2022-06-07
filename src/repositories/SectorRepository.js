@@ -1,5 +1,6 @@
 const Sector = require('../models/Sector');
 const Espacio = require('../models/Espacio');
+const Horario = require('../models/Horario');
 const Ubicacion = require('../models/Ubicacion');
 const BaseRepository = require('../repositories/BaseRepository');
 const Repofunciones = require('../extras/SectorExtrasRepo');
@@ -111,6 +112,17 @@ class SectorRepository extends BaseRepository {
 
     async getEntradasDisponibles(idhorario, idsector) {
         try {
+            const sector = await Sector.findByPk(idsector);
+            if (!sector) throw { status: 404, message: "NO hay sector con ese id" };
+
+            const horario = await Horario.findOne({
+                where: {
+                    idhorario: idhorario,
+                    idubicacion: sector.idubicacion
+                }
+            });
+            if (!horario) throw { status: 404, message: "NO existe el horario para dicho sector" };
+
             const entradas_vendidas = await Entradas_sector.findOne({
                 attributes: ['cantidad_vendida'],
                 where: {
@@ -118,7 +130,8 @@ class SectorRepository extends BaseRepository {
                     idsector: idsector
                 }
             });
-            if (!entradas_vendidas) throw { status: 404, message: "NO hay sector con ese horario" };
+            console.log("Entradas vendidas: " + entradas_vendidas);
+            if (!entradas_vendidas) return 0;
             return entradas_vendidas.dataValues.cantidad_vendida;
         } catch (error) {
             console.log(error);
