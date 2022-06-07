@@ -94,6 +94,13 @@ class UbicacionRepository extends BaseRepository {
     }
     async getEntradasDisponibles(idhorario, idubicacion) {
         try {
+            const horario = await Horario.findOne({
+                where: {
+                    [Op.and]: [{ idhorario: idhorario }, { idubicacion: idubicacion }]
+                }
+            });
+            if (!horario) throw { status: 404, message: "NO hay Ubicacion con dicho horario" };
+
             const entradas_vendidas = await Entradas_ubicacion.findOne({
                 attributes: ['cantidad_vendida'],
                 where: {
@@ -101,7 +108,7 @@ class UbicacionRepository extends BaseRepository {
                     idubicacion: idubicacion
                 }
             });
-            if (!entradas_vendidas) throw { status: 404, message: "NO hay ubicacion con ese horario" };
+            if (!entradas_vendidas) return 0;
             return entradas_vendidas.dataValues.cantidad_vendida;
         } catch (error) {
             console.log(error);
