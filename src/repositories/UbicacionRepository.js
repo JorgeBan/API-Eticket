@@ -5,6 +5,7 @@ const Sector = require('../models/Sector');
 const UbicacionDTO = require('../dto/UbicacionDTO');
 const Repofunciones = require('../extras/UbicacionExtrasRepo');
 const Entradas_ubicacion = require('../models/Entradas_ubicacion');
+const { Op } = require('sequelize');
 class UbicacionRepository extends BaseRepository {
     constructor() {
         super(Ubicacion);
@@ -104,6 +105,19 @@ class UbicacionRepository extends BaseRepository {
             return entradas_vendidas.dataValues.cantidad_vendida;
         } catch (error) {
             console.log(error);
+            throw error;
+        }
+    }
+
+    async getUbicacionByEvento(idubicacion, idevento) {
+        try {
+            const ubicaciones = await this.model.findOne({
+                where: {
+                    [Op.and]: [{ idubicacion: idubicacion }, { idevento: idevento }]
+                },
+            });
+            return ubicaciones;
+        } catch (error) {
             throw error;
         }
     }

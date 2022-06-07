@@ -45,6 +45,22 @@ class HorarioRepository extends BaseRepository {
             throw error;
         }
     }
+
+    async getHorarioByUbicacion(idhorario, idubicacion) {
+        try {
+            const horario = await this.model.findOne({
+                where: {
+                    [Op.and]: [
+                        { idhorario: idhorario },
+                        { idubicacion: idubicacion }
+                    ]
+                }
+            });
+            return horario;
+        } catch (error) {
+            throw error;
+        }
+    }
 }
 
 module.exports = HorarioRepository;
