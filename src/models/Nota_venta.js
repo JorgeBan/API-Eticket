@@ -11,11 +11,15 @@ const Nota_venta = sequelize.define('nota_venta', {
         autoIncrement: true,
         primaryKey: true,
     },
+    fecha_emision: {
+        type: Sequelize.DATE,
+        allowNull: false,
+    },
     precio_total: {
         type: Sequelize.DECIMAL(6, 2),
         allowNull: false,
     },
-    idusario: {
+    idusuario: {
         type: Sequelize.UUIDV4,
         allowNull: false,
 
@@ -36,11 +40,13 @@ const Nota_venta = sequelize.define('nota_venta', {
 
 }, {
     timestamp: false,
+    createdAt: false,
+    updatedAt: false,
     freezeTableName: true
 });
 
-Nota_venta.belongsTo(User, { foreignKey: 'idusario' });
-User.hasMany(Nota_venta, { foreignKey: 'idusario' });
+Nota_venta.belongsTo(User, { foreignKey: 'idusuario' });
+User.hasMany(Nota_venta, { foreignKey: 'idusuario' });
 
 Nota_venta.belongsTo(Datos_cliente, { foreignKey: 'idcliente' });
 Datos_cliente.belongsTo(Nota_venta, { foreignKey: 'idcliente' });

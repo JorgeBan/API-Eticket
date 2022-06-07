@@ -17,6 +17,8 @@ const Espacio_reservado = sequelize.define('espacio_reservado', {
     }
 }, {
     timestamps: false,
+    createdAt: false,
+    updatedAt: false,
     freezeTableName: true,
 });
 

@@ -9,6 +9,7 @@ const Ticket = sequelize.define('ticket', {
     idticket: {
         type: Sequelize.UUIDV4,
         allowNull: false,
+        defaultValue: Sequelize.UUIDV4,
         primaryKey: true,
     },
     idhorario: {
@@ -33,6 +34,8 @@ const Ticket = sequelize.define('ticket', {
     }
 }, {
     timestamp: false,
+    createdAt: false,
+    updatedAt: false,
     freezeTableName: true
 });
 

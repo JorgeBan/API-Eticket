@@ -22,6 +22,8 @@ const Entradas_ubicacion = sequelize.define('entradas_ubicacion', {
 
 }, {
     timestamps: false,
+    createdAt: false,
+    updatedAt: false,
     freezeTableName: true,
 });
 

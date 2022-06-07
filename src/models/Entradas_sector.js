@@ -22,6 +22,8 @@ const Entradas_sector = sequelize.define('entradas_sector', {
     }
 }, {
     timestamps: false,
+    createdAt: false,
+    updatedAt: false,
     freezeTableName: true,
 });
 

@@ -33,6 +33,8 @@ const Datos_cliente = sequelize.define('datos_cliente', {
 
 }, {
     timestamp: false,
+    createdAt: false,
+    updatedAt: false,
     freezeTableName: true
 });
 

@@ -10,7 +10,7 @@ class CompraService extends BaseServices {
         this._compraRepository = new CompraRepository();
     }
 
-    async Comprar(datosUsuario, datosCompra) {
+    async Comprar(datosUsuario, datosCompra, iduser) {
         try {
             const Datosverificados = await this._verificarIds(datosCompra.idubicacion, datosCompra.idhorario, datosCompra.idevento);
             console.log(Datosverificados);
@@ -18,8 +18,8 @@ class CompraService extends BaseServices {
                 console.log('Ids verficaados');
                 await this._verificarEntradas(datosCompra);
                 console.log('TODO OK, Entradas verificadas');
-                const compra = await this._compraRepository.comprar(datosUsuario, datosCompra);
-
+                const compra = await this._compraRepository.comprar(datosUsuario, datosCompra, iduser);
+                return compra;
             } else {
                 throw { status: 404, message: 'Los datos de evento, ubicacion y horario no coinciden o no existen' };
             }

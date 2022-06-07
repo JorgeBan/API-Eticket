@@ -31,6 +31,8 @@ const Detalle_venta = sequelize.define('detalle_venta', {
 
 }, {
     timestamp: false,
+    createdAt: false,
+    updatedAt: false,
     freezeTableName: true
 });
 

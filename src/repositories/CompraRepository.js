@@ -14,6 +14,10 @@ const _sector_repository = new Sector_repository();
 const Espacio_repository = require('../repositories/EspacioRepository');
 const Espacio = require('../models/Espacio');
 const Sector = require('../models/Sector');
+const Evento = require('../models/Evento');
+const Ubicacion = require('../models/Ubicacion');
+const Entradas_ubicacion = require('../models/Entradas_ubicacion');
+const sequelize = require('../config/database/database');
 const _espacio_repository = new Espacio_repository();
 class CompraRepository extends BaseRepository {
     constructor() {
@@ -84,6 +88,86 @@ class CompraRepository extends BaseRepository {
             throw error;
         }
 
+    }
+
+    async comprar(datosUsuario, datosCompra, iduser) {
+        const t = await sequelize.transaction();
+        try {
+            let verificaSector = datosCompra.sectores;
+            console.log("Compra datos usuario", datosUsuario.nombres);
+            if (!verificaSector) {
+                await this._compraUbicacion(datosUsuario, iduser, t, datosCompra);
+            } else {
+                console.log('Se compra con sector');
+            }
+        } catch (error) {
+            await t.rollback();
+            throw error;
+        }
+    }
+
+    async _compraUbicacion(datosUsuario, iduser, t, datosCompra) {
+        const datosCliente = await Datos_cliente.create({
+            nombres: datosUsuario.nombres,
+            apellidos: datosUsuario.apellidos,
+            telefono: datosUsuario.telefono,
+            email: datosUsuario.email,
+            idusuario: iduser,
+        }, { transaction: t });
+
+        const nota_venta = await Nota_venta.create({
+            fecha_emision: new Date(),
+            precio_total: 0,
+            idusuario: iduser,
+            idcliente: datosCliente.idcliente,
+            idpago: datosCompra.tipoPago,
+            idevento: datosCompra.idevento,
+        }, { transaction: t });
+
+        const evento = await Evento.findByPk(datosCompra.idevento);
+        const ubicacion = await Ubicacion.findByPk(datosCompra.idubicacion);
+        const detalle_venta = await Detalle_venta.create({
+            descripcion: "Entrada/s para el evento " + evento.nombre,
+            cantidad: datosCompra.cantidad,
+            precio_unitario: ubicacion.precio,
+            importe: ubicacion.precio * datosCompra.cantidad,
+            nronota: nota_venta.nronota,
+        }, { transaction: t });
+
+        const entradas_ubicacion = await Entradas_ubicacion.findOne({
+            where: {
+                idubicacion: datosCompra.idubicacion,
+                idhorario: datosCompra.idhorario,
+            }
+        });
+
+        if (entradas_ubicacion) {
+            entradas_ubicacion.entradas_vendidas = entradas_ubicacion.entradas_vendidas + datosCompra.cantidad;
+            await entradas_ubicacion.save({ transaction: t });
+        } else {
+            const entradas = await Entradas_ubicacion.create({
+                idubicacion: datosCompra.idubicacion,
+                idhorario: datosCompra.idhorario,
+                cantidad_vendida: datosCompra.cantidad,
+            }, { transaction: t });
+        }
+
+        let listatickets = [];
+        //generar ticket
+        for (let i = 0; i < datosCompra.cantidad; i++) {
+            const ticket = await Ticket.create({
+                idhorario: datosCompra.idhorario,
+                idubicacion: datosCompra.idubicacion,
+                nrodetalle: detalle_venta.nrodetalle,
+            }, { transaction: t });
+            listatickets.push(ticket);
+        }
+
+        //generar qr del ticket
+        console.log("Compra datos compra", listatickets);
+        throw { status: 404, message: 'Ups' };
+
+        await t.commit();
     }
 }
 
