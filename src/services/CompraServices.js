@@ -27,12 +27,11 @@ class CompraService extends BaseServices {
         try {
             const ubiRepo = new UbicacionRepository();
 
+            //Verifica que exista la ubicacion en dicho evento 
             const existUbicacionEvento = await ubiRepo.getUbicacionByEvento(idubicacion, idevento);
             if (!existUbicacionEvento) return false;
 
-            const existUbicacion = await ubiRepo.getById(idubicacion);
-            if (!existUbicacion) return false;
-
+            //Verifica que exista el horario en dicha ubicacion
             const horRepo = new HorarioRepository();
             const existHorario = await horRepo.getHorarioByUbicacion(idhorario, idubicacion);
             if (!existHorario) return false;
