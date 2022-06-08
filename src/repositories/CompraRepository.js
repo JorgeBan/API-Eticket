@@ -119,8 +119,7 @@ class CompraRepository extends BaseRepository {
         await this._modificarCantidadEntradasUbicacion(datosCompra, entradas_total, t);
 
         //actulizar preicio total de la nota de venta
-        await this._modificarPrecioTotal(nota_venta, datosCompra, t, listaDetalles);
-
+        await this._modificarPrecioTotal(nota_venta, t, listaDetalles);
         //generar tickets 
         let listaTickets = [];
         for (let i = 0; i < listaDetalles.length; i++) {
