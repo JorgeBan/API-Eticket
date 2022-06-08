@@ -94,6 +94,7 @@ class CompraService extends BaseServices {
         if (!sectores.espacios) {
             let _sector_repository = new SectorRepository();
             let verificaSector = await _sector_repository.getSectorById(sectores.idsector);
+            if (verificaSector === null) throw { status: 404, message: 'El sector no existe' };
             if (idubicacion != verificaSector.dataValues.idubicacion) throw { status: 404, message: 'El sector no pertenece a la ubicacion' };
             if (verificaSector.dataValues.espacios.length > 0) throw { status: 404, message: 'El sector tiene espacios, debe seleccionar espacios' };
             if (sectores.cantidad <= 0 || !sectores.cantidad)
