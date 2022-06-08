@@ -91,117 +91,16 @@ class CompraRepository extends BaseRepository {
 
     }
 
+
     async comprar(datosUsuario, datosCompra, iduser) {
         const t = await sequelize.transaction();
         try {
             let verificaSector = datosCompra.sectores;
-            console.log("Compra datos usuario", datosUsuario.nombres);
+            let nota_venta = await this._crearNotaVenta(datosUsuario, iduser, t, datosCompra, verificaSector);
             if (!verificaSector) {
-                await this._compraUbicacion(datosUsuario, iduser, t, datosCompra);
+                await this._compraUbicacion(t, datosCompra, nota_venta);
             } else {
-                console.log('Se compra con sector');
-                const datosCliente = await Datos_cliente.create({
-                    nombres: datosUsuario.nombres,
-                    apellidos: datosUsuario.apellidos,
-                    telefono: datosUsuario.telefono,
-                    email: datosUsuario.email,
-                    idusuario: iduser,
-                }, { transaction: t });
-
-                const nota_venta = await Nota_venta.create({
-                    fecha_emision: new Date(),
-                    precio_total: 0,
-                    idusuario: iduser,
-                    idcliente: datosCliente.idcliente,
-                    idpago: datosCompra.tipoPago,
-                    idevento: datosCompra.idevento,
-                }, { transaction: t });
-
-                let listaDetalles = [];
-                let listaIdSectores = [];
-                for (let i = 0; i < verificaSector.length; i++) {
-                    console.log("entre: " + 1);
-                    if (!verificaSector[i].espacios) {
-                        //await this._compraSector(datosUsuario, iduser, t, datosCompra, verificaSector[i]);
-                        let evento = await Evento.findByPk(datosCompra.idevento);
-                        let sector = await Sector.findByPk(verificaSector[i].idsector);
-                        let detalle_venta = await Detalle_venta.create({
-                            descripcion: "Entrada/s para el evento " + evento.nombre + " Sector " + sector.nombre,
-                            cantidad: verificaSector[i].cantidad,
-                            precio_unitario: sector.precio,
-                            importe: sector.precio * verificaSector[i].cantidad,
-                            nronota: nota_venta.nronota,
-                        }, { transaction: t });
-
-                        listaIdSectores.push(verificaSector[i].idsector);
-                        listaDetalles.push(detalle_venta.dataValues);
-                    } else {
-                        for (let j = 0; j < verificaSector[i].espacios.length; j++) {
-                            //await this._compraEspacio(datosUsuario, iduser, t, datosCompra, verificaSector[i], verificaSector[i].espacios[j]);
-                        }
-                    }
-                }
-                console.log("Lista de detalles", listaDetalles);
-                //Modifcar cantidad de entradas disponibles en ubicacion y sector
-                let entradas_total = 0;
-                for (let i = 0; i < listaDetalles.length; i++) {
-                    let entradas_sector = await Entradas_sector.findOne({
-                        where: {
-                            idsector: listaIdSectores[i],
-                            idhorario: datosCompra.idhorario
-                        }
-                    });
-                    if (entradas_sector) {
-                        entradas_sector.cantidad_disponible = entradas_sector.cantidad_vendida - listaDetalles[i].cantidad;
-                        await entradas_sector.save({ transaction: t });
-                        console.log("entradas existia perro: ", entradas_sector);
-                    } else {
-                        let entradas = await Entradas_sector.create({
-                            idsector: listaIdSectores[i],
-                            idhorario: datosCompra.idhorario,
-                            cantidad_vendida: listaDetalles[i].cantidad,
-                        }, { transaction: t });
-                        console.log("entradas no existia perro: ", entradas);
-                    }
-
-                    entradas_total = entradas_total + listaDetalles[i].cantidad;
-                }
-
-                //modificar cantidad de entradas disponibles en ubicacion
-                const entradas_ubicacion = await Entradas_ubicacion.findOne({
-                    where: {
-                        idubicacion: datosCompra.idubicacion,
-                        idhorario: datosCompra.idhorario,
-                    }
-                });
-                if (entradas_ubicacion) {
-                    entradas_ubicacion.entradas_vendidas = entradas_ubicacion.entradas_vendidas + entradas_total;
-                    await entradas_ubicacion.save({ transaction: t });
-                } else {
-                    const entradas = await Entradas_ubicacion.create({
-                        idubicacion: datosCompra.idubicacion,
-                        idhorario: datosCompra.idhorario,
-                        cantidad_vendida: entradas_total,
-                    }, { transaction: t });
-                }
-
-                //generar tickets 
-                let listaTickets = [];
-                for (let i = 0; i < listaDetalles.length; i++) {
-                    for (let j = 0; j < listaDetalles[i].cantidad; j++) {
-                        let ticket = await Ticket.create({
-                            idhorario: datosCompra.idhorario,
-                            idubicacion: datosCompra.idubicacion,
-                            idsector: listaIdSectores[i],
-                            nrodetalle: listaDetalles[i].nrodetalle,
-
-                        }, { transaction: t });
-                        listaTickets.push(ticket.dataValues);
-                    }
-                }
-
-                console.log("Lista de tickets perro: ", listaTickets);
-                throw { status: 200, message: 'Compra realizada con exito' };
+                await this._compraSector(verificaSector, datosCompra, nota_venta, t);
             }
         } catch (error) {
             await t.rollback();
@@ -209,7 +108,113 @@ class CompraRepository extends BaseRepository {
         }
     }
 
-    async _compraUbicacion(datosUsuario, iduser, t, datosCompra) {
+    async _compraSector(verificaSector, datosCompra, nota_venta, t) {
+        let listaDetalles = [];
+        let listaIdSectores = [];
+        for (let i = 0; i < verificaSector.length; i++) {
+            await this._detallesSector(verificaSector, i, datosCompra, nota_venta, t, listaIdSectores, listaDetalles);
+        }
+        let entradas_total = await this._modificarCantidadEntradasSector(listaDetalles, listaIdSectores, datosCompra, t);
+
+        await this._modificarCantidadEntradasUbicacion(datosCompra, entradas_total, t);
+
+        //actulizar preicio total de la nota de venta
+        await this._modificarPrecioTotal(nota_venta, datosCompra, t, listaDetalles);
+
+        //generar tickets 
+        let listaTickets = [];
+        for (let i = 0; i < listaDetalles.length; i++) {
+            for (let j = 0; j < listaDetalles[i].cantidad; j++) {
+                let ticket = await Ticket.create({
+                    idhorario: datosCompra.idhorario,
+                    idubicacion: datosCompra.idubicacion,
+                    idsector: listaIdSectores[i],
+                    nrodetalle: listaDetalles[i].nrodetalle,
+                }, { transaction: t });
+                listaTickets.push(ticket.dataValues);
+            }
+        }
+
+        throw { status: 200, message: 'Compra realizada con exito' };
+    }
+
+    async _modificarPrecioTotal(nota_venta, t, listaDetalles) {
+        let precioTotal = Number(0.00);
+        for (let i = 0; i < listaDetalles.length; i++) {
+            let importe = Number(listaDetalles[i].importe);
+            precioTotal = precioTotal + importe;
+
+        }
+        nota_venta.precio_total = precioTotal;
+        await nota_venta.save({ transaction: t });
+    }
+
+    async _modificarCantidadEntradasUbicacion(datosCompra, entradas_total, t) {
+        const entradas_ubicacion = await Entradas_ubicacion.findOne({
+            where: {
+                idubicacion: datosCompra.idubicacion,
+                idhorario: datosCompra.idhorario,
+            }
+        });
+        if (entradas_ubicacion) {
+            entradas_ubicacion.entradas_vendidas = entradas_ubicacion.entradas_vendidas + entradas_total;
+            await entradas_ubicacion.save({ transaction: t });
+        } else {
+            await Entradas_ubicacion.create({
+                idubicacion: datosCompra.idubicacion,
+                idhorario: datosCompra.idhorario,
+                cantidad_vendida: entradas_total,
+            }, { transaction: t });
+        }
+    }
+
+    async _modificarCantidadEntradasSector(listaDetalles, listaIdSectores, datosCompra, t) {
+        let entradas_total = 0;
+        for (let i = 0; i < listaDetalles.length; i++) {
+            let entradas_sector = await Entradas_sector.findOne({
+                where: {
+                    idsector: listaIdSectores[i],
+                    idhorario: datosCompra.idhorario
+                }
+            });
+            if (entradas_sector) {
+                entradas_sector.cantidad_disponible = entradas_sector.cantidad_vendida - listaDetalles[i].cantidad;
+                await entradas_sector.save({ transaction: t });
+            } else {
+                let entradas = await Entradas_sector.create({
+                    idsector: listaIdSectores[i],
+                    idhorario: datosCompra.idhorario,
+                    cantidad_vendida: listaDetalles[i].cantidad,
+                }, { transaction: t });
+            }
+
+            entradas_total = entradas_total + listaDetalles[i].cantidad;
+        }
+        return entradas_total;
+    }
+
+    async _detallesSector(verificaSector, i, datosCompra, nota_venta, t, listaIdSectores, listaDetalles) {
+        if (!verificaSector[i].espacios) {
+            let evento = await Evento.findByPk(datosCompra.idevento);
+            let sector = await Sector.findByPk(verificaSector[i].idsector);
+            let detalle_venta = await Detalle_venta.create({
+                descripcion: "Entrada/s para el evento " + evento.nombre + " Sector " + sector.nombre,
+                cantidad: verificaSector[i].cantidad,
+                precio_unitario: sector.precio,
+                importe: sector.precio * verificaSector[i].cantidad,
+                nronota: nota_venta.nronota,
+            }, { transaction: t });
+
+            listaIdSectores.push(verificaSector[i].idsector);
+            listaDetalles.push(detalle_venta.dataValues);
+        } else {
+            for (let j = 0; j < verificaSector[i].espacios.length; j++) {
+                //await this._compraEspacio(datosUsuario, iduser, t, datosCompra, verificaSector[i], verificaSector[i].espacios[j]);
+            }
+        }
+    }
+
+    async _crearNotaVenta(datosUsuario, iduser, t, datosCompra) {
         const datosCliente = await Datos_cliente.create({
             nombres: datosUsuario.nombres,
             apellidos: datosUsuario.apellidos,
@@ -227,8 +232,13 @@ class CompraRepository extends BaseRepository {
             idevento: datosCompra.idevento,
         }, { transaction: t });
 
+        return nota_venta;
+    }
+
+    async _compraUbicacion(t, datosCompra, nota_venta) {
         const evento = await Evento.findByPk(datosCompra.idevento);
         const ubicacion = await Ubicacion.findByPk(datosCompra.idubicacion);
+
         const detalle_venta = await Detalle_venta.create({
             descripcion: "Entrada/s para el evento " + evento.nombre,
             cantidad: datosCompra.cantidad,
@@ -237,38 +247,26 @@ class CompraRepository extends BaseRepository {
             nronota: nota_venta.nronota,
         }, { transaction: t });
 
-        const entradas_ubicacion = await Entradas_ubicacion.findOne({
-            where: {
-                idubicacion: datosCompra.idubicacion,
-                idhorario: datosCompra.idhorario,
-            }
-        });
 
-        if (entradas_ubicacion) {
-            entradas_ubicacion.entradas_vendidas = entradas_ubicacion.entradas_vendidas + datosCompra.cantidad;
-            await entradas_ubicacion.save({ transaction: t });
-        } else {
-            const entradas = await Entradas_ubicacion.create({
-                idubicacion: datosCompra.idubicacion,
-                idhorario: datosCompra.idhorario,
-                cantidad_vendida: datosCompra.cantidad,
-            }, { transaction: t });
-        }
+        await this._modificarCantidadEntradasUbicacion(datosCompra, datosCompra.cantidad, t);
 
-        let listatickets = [];
+        //modificar precio total de la nota de venta
+        await this._modificarPrecioTotal(nota_venta, t, [detalle_venta.dataValues]);
+
         //generar ticket
+        let listatickets = [];
         for (let i = 0; i < datosCompra.cantidad; i++) {
             const ticket = await Ticket.create({
                 idhorario: datosCompra.idhorario,
                 idubicacion: datosCompra.idubicacion,
                 nrodetalle: detalle_venta.nrodetalle,
             }, { transaction: t });
-            listatickets.push(ticket);
+            listatickets.push(ticket.dataValues);
         }
 
         //generar qr del ticket
-        console.log("Compra datos compra", listatickets);
-        throw { status: 404, message: 'Ups' };
+
+        throw { status: 404, message: 'Compra exitosa' };
 
         await t.commit();
     }
