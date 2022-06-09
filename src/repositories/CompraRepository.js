@@ -101,7 +101,6 @@ class CompraRepository extends BaseRepository {
             } else {
                 await this._compraSector(verificaSector, datosCompra, nota_venta, t);
             }
-            throw new Error('');
             await t.commit();
             return {
                 status: 200,
