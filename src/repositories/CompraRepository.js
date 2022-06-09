@@ -101,12 +101,16 @@ class CompraRepository extends BaseRepository {
             } else {
                 await this._compraSector(verificaSector, datosCompra, nota_venta, t);
             }
-            throw { status: 200, message: 'Compra realizada con exito' };
+
             await t.commit();
             return {
                 status: 200,
                 message: 'Compra realizada con exito',
-                nota_venta: nota_venta
+                nota_venta: {
+                    nronota: nota_venta.nronota,
+                    fecha_emision: nota_venta.fecha_emision,
+                    precio_total: nota_venta.precio_total,
+                }
             };
         } catch (error) {
             await t.rollback();
