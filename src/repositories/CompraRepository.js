@@ -2,7 +2,6 @@ const BaseRepository = require('./BaseRepository');
 const Nota_venta = require('../models/Nota_venta');
 const Ticket = require('../models/Ticket');
 const Detalle_venta = require('../models/Detalle_venta');
-const Tipo_pago = require('../models/Tipo_pago');
 const Datos_cliente = require('../models/Datos_cliente');
 const Espacio_reservado = require('../models/Espacio_reservado');
 const Ubicacion_repository = require('../repositories/UbicacionRepository');
@@ -19,7 +18,7 @@ const Ubicacion = require('../models/Ubicacion');
 const Entradas_ubicacion = require('../models/Entradas_ubicacion');
 const Entradas_sector = require('../models/Entradas_sector');
 const sequelize = require('../config/database/database');
-const _espacio_repository = new Espacio_repository();
+
 class CompraRepository extends BaseRepository {
     constructor() {
         super(Nota_venta);
@@ -102,6 +101,13 @@ class CompraRepository extends BaseRepository {
             } else {
                 await this._compraSector(verificaSector, datosCompra, nota_venta, t);
             }
+            throw { status: 200, message: 'Compra realizada con exito' };
+            await t.commit();
+            return {
+                status: 200,
+                message: 'Compra realizada con exito',
+                nota_venta: nota_venta
+            };
         } catch (error) {
             await t.rollback();
             throw error;
@@ -109,14 +115,209 @@ class CompraRepository extends BaseRepository {
     }
 
     async _compraSector(verificaSector, datosCompra, nota_venta, t) {
-        let listaDetalles = [];
-        let listaIdSectores = [];
+        let listaSinEspacios = [];
+        let listaConEspacios = [];
         for (let i = 0; i < verificaSector.length; i++) {
-            await this._detallesSector(verificaSector, i, datosCompra, nota_venta, t, listaIdSectores, listaDetalles);
+            if (!verificaSector[i].espacios) {
+                listaSinEspacios.push(verificaSector[i]);
+            } else {
+                listaConEspacios.push(verificaSector[i]);
+            }
+
         }
+        let tikectsSinEspacios = await this._detallesSectorSinEspacios(listaSinEspacios, datosCompra, nota_venta, t);
+        let tikectsConEspacios = await this._detallesSectorConEspacios(listaConEspacios, datosCompra, nota_venta, t);
+
+        let listaTikectsSinEspacios = tikectsSinEspacios.tickets;
+        let listaTikectsConEspacios = tikectsConEspacios.tickets;
+        let cantidad_entradas_vendidas = tikectsSinEspacios.entradas_total + tikectsConEspacios.entradas_total;
+        await this._modificarCantidadEntradasUbicacion(datosCompra, cantidad_entradas_vendidas, t);
+
+        console.log("cantidad de entradas vendidas: " + cantidad_entradas_vendidas);
+        console.log("listaTickets sin espacios", listaTikectsSinEspacios);
+        console.log("listaTickets con espacios", listaTikectsConEspacios);
+        console.log("nota_venta", nota_venta.dataValues);
+    }
+
+    async _modificarPrecioTotal(nota_venta, t, listaDetalles) {
+        let precioTotal = Number(0.00);
+        for (let i = 0; i < listaDetalles.length; i++) {
+            let importe = Number(listaDetalles[i].importe);
+            precioTotal = precioTotal + importe;
+
+        }
+        nota_venta.precio_total = precioTotal;
+        await nota_venta.save({ transaction: t });
+    }
+
+    async _modificarCantidadEntradasUbicacion(datosCompra, entradas_total, t) {
+        let entradas_ubicacion = await Entradas_ubicacion.findOne({
+            where: {
+                idubicacion: datosCompra.idubicacion,
+                idhorario: datosCompra.idhorario,
+            }
+        });
+        console.log("entradas_ubicacion antes", entradas_ubicacion.dataValues);
+        if (entradas_ubicacion) {
+            let nueva_cantidad_vendida = entradas_ubicacion.dataValues.cantidad_vendida + entradas_total;
+            await Entradas_ubicacion.update({
+                cantidad_vendida: nueva_cantidad_vendida,
+            }, {
+                where: {
+                    idubicacion: datosCompra.idubicacion,
+                    idhorario: datosCompra.idhorario,
+                }
+            }, { transaction: t })
+
+        } else {
+            let entradas = await Entradas_ubicacion.create({
+                idubicacion: datosCompra.idubicacion,
+                idhorario: datosCompra.idhorario,
+                cantidad_vendida: entradas_total,
+            }, { transaction: t });
+        }
+        console.log("entradas_ubicacion despues", entradas_ubicacion.dataValues);
+    }
+
+    async _modificarCantidadEntradasSector(listaDetalles, listaIdSectores, datosCompra, t) {
+        let entradas_total = 0;
+        for (let i = 0; i < listaDetalles.length; i++) {
+            let entradas_sector = await Entradas_sector.findOne({
+                where: {
+                    idsector: listaIdSectores[i],
+                    idhorario: datosCompra.idhorario
+                }
+            });
+
+            if (entradas_sector) {
+                await Entradas_sector.update({
+                    cantidad_vendida: entradas_sector.cantidad_vendida + listaDetalles[i].cantidad
+                }, {
+                    where: {
+                        idsector: listaIdSectores[i],
+                        idhorario: datosCompra.idhorario
+                    }
+
+                }, { transaction: t });
+
+            } else {
+                let entradas = await Entradas_sector.create({
+                    idsector: listaIdSectores[i],
+                    idhorario: datosCompra.idhorario,
+                    cantidad_vendida: listaDetalles[i].cantidad,
+                }, { transaction: t });
+            }
+            entradas_total = entradas_total + listaDetalles[i].cantidad;
+        }
+        return entradas_total;
+    }
+
+    async _detallesSectorSinEspacios(listaSinEspacios, datosCompra, nota_venta, t) {
+        let listaIdSectores = [];
+        let listaDetalles = [];
+        let evento = await Evento.findByPk(datosCompra.idevento);
+        for (let i = 0; i < listaSinEspacios.length; i++) {
+            let sector = await Sector.findByPk(listaSinEspacios[i].idsector);
+            let detalle_venta = await Detalle_venta.create({
+                descripcion: "Entrada/s para el evento " + evento.nombre + " Sector " + sector.nombre,
+                cantidad: listaSinEspacios[i].cantidad,
+                precio_unitario: sector.precio,
+                importe: sector.precio * listaSinEspacios[i].cantidad,
+                nronota: nota_venta.nronota,
+            }, { transaction: t });
+
+            listaIdSectores.push(listaSinEspacios[i].idsector);
+            listaDetalles.push(detalle_venta.dataValues);
+        }
+
+        console.log("lista Detalles sin espacios", listaDetalles);
+        return await this._crearTicketsSinEspacios(listaDetalles, listaIdSectores, datosCompra, t, nota_venta);
+    }
+
+    async _detallesSectorConEspacios(listaConEspacios, datosCompra, nota_venta, t) {
+        let evento = await Evento.findByPk(datosCompra.idevento);
+        let nombreEvento = evento.dataValues.nombre;
+        let tickets = [];
+        let cantidad_vendida_ubicacion = 0;
+        let listaDetalles = [];
+        for (let i = 0; i < listaConEspacios.length; i++) {
+            let sector = await Sector.findByPk(listaConEspacios[i].idsector);
+            let nombreSector = sector.dataValues.nombre;
+            let cantidad_vendida_sector = 0;
+            for (let j = 0; j < listaConEspacios[i].espacios.length; j++) {
+                let espacio = await Espacio.findByPk(listaConEspacios[i].espacios[j].idespacio);
+                let nombreEspacio = espacio.dataValues.identificador;
+                let detalle_venta = await Detalle_venta.create({
+                    descripcion: "Entrada/s para el evento " + nombreEvento + " Sector " + nombreSector + " Espacio " + nombreEspacio,
+                    cantidad: 1,
+                    precio_unitario: espacio.precio,
+                    importe: espacio.precio,
+                    nronota: nota_venta.nronota,
+                }, { transaction: t });
+
+                listaDetalles.push(detalle_venta.dataValues);
+                cantidad_vendida_ubicacion = cantidad_vendida_ubicacion + 1;
+                cantidad_vendida_sector = cantidad_vendida_sector + 1;
+
+                await this._crearTicketConEspacios(datosCompra, listaConEspacios[i].idsector, espacio, detalle_venta, t, tickets);
+                //Modificar el precio total de la nota de venta
+                let importe = Number(detalle_venta.dataValues.importe);
+                nota_venta.precio_total = nota_venta.precio_total + importe;
+                await nota_venta.save({ transaction: t });
+            }
+            //actualizar cantidad vendida de sector
+            await this._modificarCantidadDeSectorConEspacio(listaConEspacios[i], datosCompra, cantidad_vendida_sector, t);
+        }
+        console.log("lista Detalles con espacios", listaDetalles);
+        return {
+            tickets: tickets,
+            entradas_total: cantidad_vendida_ubicacion
+        };
+    }
+    async _modificarCantidadDeSectorConEspacio(listaConEspacios, datosCompra, cantidad_vendida_sector, t) {
+        let entradas_sector = await Entradas_sector.findOne({
+            where: {
+                idsector: listaConEspacios.idsector,
+                idhorario: datosCompra.idhorario
+            }
+        });
+        if (entradas_sector) {
+            entradas_sector.cantidad_vendida = entradas_sector.cantidad_vendida + cantidad_vendida_sector;
+            await entradas_sector.save({ transaction: t });
+        } else {
+            await Entradas_sector.create({
+                idsector: listaConEspacios.idsector,
+                idhorario: datosCompra.idhorario,
+                cantidad_vendida: cantidad_vendida_sector,
+            }, { transaction: t });
+        }
+    }
+
+    async _crearTicketConEspacios(datosCompra, idsector, espacio, detalle_venta, t, tickets) {
+        for (let i = 0; i < espacio.cantidad_de_personas; i++) {
+            let ticket = await Ticket.create({
+                idhorario: datosCompra.idhorario,
+                idubicacion: datosCompra.idubicacion,
+                idsector: idsector,
+                idespacio: espacio.idespacio,
+                nrodetalle: detalle_venta.nrodetalle,
+            }, { transaction: t });
+
+            tickets.push(ticket.dataValues);
+        }
+        //modificar estados de los espacios
+        await Espacio_reservado.create({
+            idespacio: espacio.idespacio,
+            idhorario: datosCompra.idhorario,
+        }, { transaction: t });
+
+
+    }
+
+    async _crearTicketsSinEspacios(listaDetalles, listaIdSectores, datosCompra, t, nota_venta) {
         let entradas_total = await this._modificarCantidadEntradasSector(listaDetalles, listaIdSectores, datosCompra, t);
 
-        await this._modificarCantidadEntradasUbicacion(datosCompra, entradas_total, t);
+        //await this._modificarCantidadEntradasUbicacion(datosCompra, entradas_total, t);
 
         //actulizar preicio total de la nota de venta
         await this._modificarPrecioTotal(nota_venta, t, listaDetalles);
@@ -133,84 +334,7 @@ class CompraRepository extends BaseRepository {
                 listaTickets.push(ticket.dataValues);
             }
         }
-
-        throw { status: 200, message: 'Compra realizada con exito' };
-    }
-
-    async _modificarPrecioTotal(nota_venta, t, listaDetalles) {
-        let precioTotal = Number(0.00);
-        for (let i = 0; i < listaDetalles.length; i++) {
-            let importe = Number(listaDetalles[i].importe);
-            precioTotal = precioTotal + importe;
-
-        }
-        nota_venta.precio_total = precioTotal;
-        await nota_venta.save({ transaction: t });
-    }
-
-    async _modificarCantidadEntradasUbicacion(datosCompra, entradas_total, t) {
-        const entradas_ubicacion = await Entradas_ubicacion.findOne({
-            where: {
-                idubicacion: datosCompra.idubicacion,
-                idhorario: datosCompra.idhorario,
-            }
-        });
-        if (entradas_ubicacion) {
-            entradas_ubicacion.entradas_vendidas = entradas_ubicacion.entradas_vendidas + entradas_total;
-            await entradas_ubicacion.save({ transaction: t });
-        } else {
-            await Entradas_ubicacion.create({
-                idubicacion: datosCompra.idubicacion,
-                idhorario: datosCompra.idhorario,
-                cantidad_vendida: entradas_total,
-            }, { transaction: t });
-        }
-    }
-
-    async _modificarCantidadEntradasSector(listaDetalles, listaIdSectores, datosCompra, t) {
-        let entradas_total = 0;
-        for (let i = 0; i < listaDetalles.length; i++) {
-            let entradas_sector = await Entradas_sector.findOne({
-                where: {
-                    idsector: listaIdSectores[i],
-                    idhorario: datosCompra.idhorario
-                }
-            });
-            if (entradas_sector) {
-                entradas_sector.cantidad_disponible = entradas_sector.cantidad_vendida - listaDetalles[i].cantidad;
-                await entradas_sector.save({ transaction: t });
-            } else {
-                let entradas = await Entradas_sector.create({
-                    idsector: listaIdSectores[i],
-                    idhorario: datosCompra.idhorario,
-                    cantidad_vendida: listaDetalles[i].cantidad,
-                }, { transaction: t });
-            }
-
-            entradas_total = entradas_total + listaDetalles[i].cantidad;
-        }
-        return entradas_total;
-    }
-
-    async _detallesSector(verificaSector, i, datosCompra, nota_venta, t, listaIdSectores, listaDetalles) {
-        if (!verificaSector[i].espacios) {
-            let evento = await Evento.findByPk(datosCompra.idevento);
-            let sector = await Sector.findByPk(verificaSector[i].idsector);
-            let detalle_venta = await Detalle_venta.create({
-                descripcion: "Entrada/s para el evento " + evento.nombre + " Sector " + sector.nombre,
-                cantidad: verificaSector[i].cantidad,
-                precio_unitario: sector.precio,
-                importe: sector.precio * verificaSector[i].cantidad,
-                nronota: nota_venta.nronota,
-            }, { transaction: t });
-
-            listaIdSectores.push(verificaSector[i].idsector);
-            listaDetalles.push(detalle_venta.dataValues);
-        } else {
-            for (let j = 0; j < verificaSector[i].espacios.length; j++) {
-                //await this._compraEspacio(datosUsuario, iduser, t, datosCompra, verificaSector[i], verificaSector[i].espacios[j]);
-            }
-        }
+        return { tickets: listaTickets, entradas_total: entradas_total };
     }
 
     async _crearNotaVenta(datosUsuario, iduser, t, datosCompra) {
@@ -264,11 +388,10 @@ class CompraRepository extends BaseRepository {
         }
 
         //generar qr del ticket
-
-        throw { status: 404, message: 'Compra exitosa' };
-
-        await t.commit();
+        console.log("lista de tickets", listatickets);
+        console.log("nota de venta", nota_venta.dataValues);
     }
+
 }
 
 module.exports = CompraRepository;
