@@ -105,7 +105,7 @@ class CompraRepository extends BaseRepository {
             await t.commit();
             return {
                 status: 200,
-                message: 'Compra realizada con exito',
+                message: 'Compra realizada con exito, revisa tu correo ' + datosUsuario.email + ' para verificar tus tickets, gracias por la compra',
                 nota_venta: {
                     nronota: nota_venta.nronota,
                     fecha_emision: nota_venta.fecha_emision,
