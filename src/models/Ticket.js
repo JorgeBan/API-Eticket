@@ -5,6 +5,7 @@ const Ubicacion = require('./Ubicacion');
 const Sector = require('./Sector');
 const Espacio = require('./Espacio');
 const Detalle_venta = require('./Detalle_venta');
+const Usuario = require('./User');
 const Ticket = sequelize.define('ticket', {
     idticket: {
         type: Sequelize.UUIDV4,
@@ -31,6 +32,10 @@ const Ticket = sequelize.define('ticket', {
     nrodetalle: {
         type: Sequelize.INTEGER,
         allowNull: false,
+    },
+    idusuario: {
+        type: Sequelize.UUIDV4,
+        allowNull: false,
     }
 }, {
     timestamp: false,
@@ -54,4 +59,6 @@ Ticket.hasMany(Espacio, { foreignKey: 'idespacio' });
 Ticket.belongsTo(Detalle_venta, { foreignKey: 'nrodetalle' });
 Detalle_venta.hasMany(Ticket, { foreignKey: 'nrodetalle' });
 
+Ticket.belongsTo(Usuario, { foreignKey: 'idusuario' });
+Usuario.hasMany(Usuario, { foreignKey: 'idusuario' });
 module.exports = Ticket;

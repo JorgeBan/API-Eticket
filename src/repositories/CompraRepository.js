@@ -113,6 +113,7 @@ class CompraRepository extends BaseRepository {
             };
         } catch (error) {
             await t.rollback();
+            console.log(error);
             throw { status: 500, message: 'Ocurrio un error, intentelo mas tarde, o revisa tu conexion a internet' };
         }
     }
@@ -160,7 +161,6 @@ class CompraRepository extends BaseRepository {
                 idhorario: datosCompra.idhorario,
             }
         });
-        console.log("entradas_ubicacion antes", entradas_ubicacion.dataValues);
         if (entradas_ubicacion) {
             let nueva_cantidad_vendida = entradas_ubicacion.dataValues.cantidad_vendida + entradas_total;
             await Entradas_ubicacion.update({
@@ -179,7 +179,6 @@ class CompraRepository extends BaseRepository {
                 cantidad_vendida: entradas_total,
             }, { transaction: t });
         }
-        console.log("entradas_ubicacion despues", entradas_ubicacion.dataValues);
     }
 
     async _modificarCantidadEntradasSector(listaDetalles, listaIdSectores, datosCompra, t) {
@@ -262,7 +261,7 @@ class CompraRepository extends BaseRepository {
                 cantidad_vendida_ubicacion = cantidad_vendida_ubicacion + espacio.cantidad_de_personas;
                 cantidad_vendida_sector = cantidad_vendida_sector + espacio.cantidad_de_personas;
 
-                await this._crearTicketConEspacios(datosCompra, listaConEspacios[i].idsector, espacio, detalle_venta, t, tickets);
+                await this._crearTicketConEspacios(datosCompra, listaConEspacios[i].idsector, espacio, detalle_venta, t, tickets, nota_venta);
                 //Modificar el precio total de la nota de venta
                 let importe = Number(detalle_venta.dataValues.importe);
                 nota_venta.precio_total = nota_venta.precio_total + importe;
@@ -296,7 +295,7 @@ class CompraRepository extends BaseRepository {
         }
     }
 
-    async _crearTicketConEspacios(datosCompra, idsector, espacio, detalle_venta, t, tickets) {
+    async _crearTicketConEspacios(datosCompra, idsector, espacio, detalle_venta, t, tickets, nota_venta) {
         for (let i = 0; i < espacio.cantidad_de_personas; i++) {
             let ticket = await Ticket.create({
                 idhorario: datosCompra.idhorario,
@@ -304,6 +303,7 @@ class CompraRepository extends BaseRepository {
                 idsector: idsector,
                 idespacio: espacio.idespacio,
                 nrodetalle: detalle_venta.nrodetalle,
+                idusuario: nota_venta.idusuario,
             }, { transaction: t });
 
             tickets.push(ticket.dataValues);
@@ -333,6 +333,7 @@ class CompraRepository extends BaseRepository {
                     idubicacion: datosCompra.idubicacion,
                     idsector: listaIdSectores[i],
                     nrodetalle: listaDetalles[i].nrodetalle,
+                    idusuario: nota_venta.idusuario,
                 }, { transaction: t });
                 listaTickets.push(ticket.dataValues);
             }
@@ -386,6 +387,7 @@ class CompraRepository extends BaseRepository {
                 idhorario: datosCompra.idhorario,
                 idubicacion: datosCompra.idubicacion,
                 nrodetalle: detalle_venta.nrodetalle,
+                idusuario: nota_venta.idusuario,
             }, { transaction: t });
             listatickets.push(ticket.dataValues);
         }
