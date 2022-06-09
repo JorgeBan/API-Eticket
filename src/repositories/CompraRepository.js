@@ -259,8 +259,8 @@ class CompraRepository extends BaseRepository {
                 }, { transaction: t });
 
                 listaDetalles.push(detalle_venta.dataValues);
-                cantidad_vendida_ubicacion = cantidad_vendida_ubicacion + 1;
-                cantidad_vendida_sector = cantidad_vendida_sector + 1;
+                cantidad_vendida_ubicacion = cantidad_vendida_ubicacion + espacio.cantidad_de_personas;
+                cantidad_vendida_sector = cantidad_vendida_sector + espacio.cantidad_de_personas;
 
                 await this._crearTicketConEspacios(datosCompra, listaConEspacios[i].idsector, espacio, detalle_venta, t, tickets);
                 //Modificar el precio total de la nota de venta
