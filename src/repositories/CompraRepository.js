@@ -101,7 +101,7 @@ class CompraRepository extends BaseRepository {
             } else {
                 await this._compraSector(verificaSector, datosCompra, nota_venta, t);
             }
-
+            throw new Error('');
             await t.commit();
             return {
                 status: 200,
@@ -114,7 +114,7 @@ class CompraRepository extends BaseRepository {
             };
         } catch (error) {
             await t.rollback();
-            throw error;
+            throw { status: 500, message: 'Ocurrio un error, intentelo mas tarde, o revisa tu conexion a internet' };
         }
     }
 
