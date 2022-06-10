@@ -33,6 +33,47 @@ function sendMail(email, subject, html) {
     }
 }
 
+async function sendTickets(listaTickets, datosCliente, subject, html) {
+    try {
+        let listaPdf = [];
+        for (let i = 0; i < listaTickets.length; i++) {
+            let attachment = {
+                name: listaTickets[i].nombre,
+                path: listaTickets[i].ruta,
+                contentType: "application/pdf"
+            }
+            listaPdf.push(attachment);
+        }
+        let message = {
+            from: 'admtest.dev@gmail.com',
+            to: datosCliente.email,
+            subject,
+            text: "Estos son tus tickets, por favor verifica que esten correctos, si no, contacta con nosotros, gracias por tu compra",
+            html,
+            attachments: listaPdf
+        }
+        transporter.sendMail(message, (err, info) => {
+            if (err) {
+                console.log("ha ocurrido un error: ", err);
+            }
+            console.log("Email sent");
+        });
+        console.log("lista pdf", listaPdf);
+
+    } catch (err) {
+        console.log("Error en sendTickets: ", err)
+    }
+}
+
+function getTemplatePDF(name) {
+    return `
+    <div id="email___content">
+        <img src="https://images.emojiterra.com/google/noto-emoji/v2.034/512px/1f39f.png" alt="">
+        <h2>Hola ${name} estos son tus tickets, gracias por la compra</h2>
+    </div>
+  `;
+}
+
 function getTemplate(name, token) {
     let url = process.env.URL_DEV + "";
     console.log("entro a getTemplate",);
@@ -52,5 +93,7 @@ function getTemplate(name, token) {
 
 module.exports = {
     sendMail,
-    getTemplate
+    getTemplate,
+    getTemplatePDF,
+    sendTickets
 }

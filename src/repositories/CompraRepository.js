@@ -29,6 +29,8 @@ var CryptoJS = require("crypto-js");
 //Para crear Qr
 var QRCode = require('qrcode')
 var PDFDocument = require('pdfkit');
+//para enviar el correo
+const mailConfig = require('../config/services/mailConfig');
 
 class CompraRepository extends BaseRepository {
     constructor() {
@@ -118,7 +120,10 @@ class CompraRepository extends BaseRepository {
             let listaQr = infoTickets[0];
             let listaDetalleTicket = infoTickets[1];
             let listaPdf = await this._generarPfd(listaQr, listaDetalleTicket, datosCompra);
-
+            await this._enviarCorreo(datosUsuario, listaPdf);
+            //detener 5 segundos para que se puedan enviar los pdfs
+            await new Promise(resolve => setTimeout(resolve, 5000));
+            await this._eliminarArchivos(listaPdf, listaQr);
             await t.commit();
             return {
                 status: 200,
@@ -133,6 +138,23 @@ class CompraRepository extends BaseRepository {
             await t.rollback();
             console.log(error);
             throw { status: 500, message: 'Ocurrio un error, intentelo mas tarde, o revisa tu conexion a internet' };
+        }
+    }
+
+    async _enviarCorreo(datosUsuario, listaPdf) {
+        try {
+            const template = mailConfig.getTemplatePDF(datosUsuario.nombres + ' ' + datosUsuario.apellidos);
+            await mailConfig.sendTickets(listaPdf, datosUsuario, "Compra de tickets", template);
+        } catch (error) {
+            console.log(error);
+            throw error;
+        }
+    }
+
+    async _eliminarArchivos(listaPdf, listaQr) {
+        for (let i = 0; i < listaPdf.length; i++) {
+            fs.unlinkSync(listaPdf[i].ruta);
+            fs.unlinkSync(listaQr[i]);
         }
     }
 
@@ -156,9 +178,13 @@ class CompraRepository extends BaseRepository {
                 size: 'A7',
                 layout: 'portrait',
             });
-            let nombrePDF = pathPDF + new Date().getTime() + '_' + i + '.pdf';
-            listaPdf.push(nombrePDF);
-            doc.pipe(fs.createWriteStream(nombrePDF));
+            let nombrePDF = new Date().getTime() + '_' + i + '.pdf';
+            let rutaPDF = pathPDF + nombrePDF;
+            listaPdf.push({
+                nombre: nombrePDF,
+                ruta: rutaPDF,
+            });
+            doc.pipe(fs.createWriteStream(rutaPDF));
 
             doc.fontSize(15).text(nombreEvento, 30, 10, { width: 190, align: 'justify' });
             doc.moveDown(0.8);
@@ -189,7 +215,6 @@ class CompraRepository extends BaseRepository {
     }
 
     async _generarQr(listaTickets) {
-        //let infoTickets = this._obtenerInfoTickets(listaTickets);
         let info = await this._obtenerInfoTickets(listaTickets);
         let infoTickets = info[0];
         let detalle_ticket = info[1];
