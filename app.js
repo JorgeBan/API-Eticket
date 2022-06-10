@@ -16,6 +16,7 @@ const EspacioRoutes = require('./src/api/routes/EspacioRoutes');
 const ImagenEventoRoutes = require('./src/api/routes/ImagenEventoRoutes');
 const AuthRoutes = require('./src/api/routes/AuthRoutes');
 const CompraRoutes = require('./src/api/routes/CompraRoutes');
+const TipoPagoRoutes = require('./src/api/routes/TipoPagoRoutes');
 const app = express();
 
 const API_URI = '/api/v1.0.0';
@@ -39,6 +40,7 @@ app.use(API_URI, EspacioRoutes);
 app.use(API_URI, ImagenEventoRoutes);
 app.use(API_URI, AuthRoutes);
 app.use(API_URI, CompraRoutes);
+app.use(API_URI, TipoPagoRoutes);
 
 app.use(API_URI, (req, res) => {
     res.status(200).json({

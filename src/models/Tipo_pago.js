@@ -14,6 +14,8 @@ const Tipo_pago = sequelize.define('tipo_pago', {
     }
 }, {
     timestamp: false,
+    createdAt: false,
+    updatedAt: false,
     freezeTableName: true
 });
 
