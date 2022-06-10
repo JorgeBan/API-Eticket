@@ -18,6 +18,17 @@ const Ubicacion = require('../models/Ubicacion');
 const Entradas_ubicacion = require('../models/Entradas_ubicacion');
 const Entradas_sector = require('../models/Entradas_sector');
 const sequelize = require('../config/database/database');
+const User = require('../models/User');
+const Horario = require('../models/Horario');
+
+const fs = require('fs');
+const path = require('path');
+const { lista } = require('../public/qr/test');
+//para encriptar la informacion del Qr
+var CryptoJS = require("crypto-js");
+//Para crear Qr
+var QRCode = require('qrcode')
+var PDFDocument = require('pdfkit');
 
 class CompraRepository extends BaseRepository {
     constructor() {
@@ -93,14 +104,21 @@ class CompraRepository extends BaseRepository {
 
     async comprar(datosUsuario, datosCompra, iduser) {
         const t = await sequelize.transaction();
+        let listaTickets = [];
         try {
             let verificaSector = datosCompra.sectores;
             let nota_venta = await this._crearNotaVenta(datosUsuario, iduser, t, datosCompra, verificaSector);
             if (!verificaSector) {
-                await this._compraUbicacion(t, datosCompra, nota_venta);
+                listaTickets = await this._compraUbicacion(t, datosCompra, nota_venta);
             } else {
-                await this._compraSector(verificaSector, datosCompra, nota_venta, t);
+                listaTickets = await this._compraSector(verificaSector, datosCompra, nota_venta, t);
             }
+
+            let infoTickets = await this._generarQr(listaTickets);
+            let listaQr = infoTickets[0];
+            let listaDetalleTicket = infoTickets[1];
+            let listaPdf = await this._generarPfd(listaQr, listaDetalleTicket, datosCompra);
+
             await t.commit();
             return {
                 status: 200,
@@ -118,6 +136,119 @@ class CompraRepository extends BaseRepository {
         }
     }
 
+    async _generarPfd(listaQr, listaDetalleTicket, datosCompra) {
+        let listaPdf = [];
+        let pathPDF = path.join(__dirname, '../public/pdf/');
+        const evento = await Evento.findByPk(datosCompra.idevento);
+        const ubicacion = await Ubicacion.findByPk(datosCompra.idubicacion);
+        const horario = await Horario.findByPk(datosCompra.idhorario);
+        const nombreEvento = evento.dataValues.nombre;
+        const nombreUbicacion = ubicacion.dataValues.nombre;
+        const nombreHorario = horario.dataValues.fecha_hora;
+        let hora = new Date(nombreHorario);
+        let minutos = hora.getMinutes() + '';
+        if (minutos.length === 1) minutos = minutos + '0';
+        let horaFormato = hora.getHours() + ':' + minutos
+        let fechaFormato = hora.getDate() + '/' + (hora.getMonth() + 1) + '/' + hora.getFullYear();
+
+        for (let i = 0; i < listaQr.length; i++) {
+            let doc = new PDFDocument({
+                size: 'A7',
+                layout: 'portrait',
+            });
+            let nombrePDF = pathPDF + new Date().getTime() + '_' + i + '.pdf';
+            listaPdf.push(nombrePDF);
+            doc.pipe(fs.createWriteStream(nombrePDF));
+
+            doc.fontSize(15).text(nombreEvento, 30, 10, { width: 190, align: 'justify' });
+            doc.moveDown(0.8);
+            doc.fontSize(10).text('Ubicacion: ' + nombreUbicacion, { width: 170, align: 'justify' });
+            doc.moveDown(0.8);
+            doc.fontSize(10).text('Fecha: ' + fechaFormato, { width: 170, align: 'justify' });
+            doc.moveDown(0.8);
+            doc.fontSize(10).text('Hora: ' + horaFormato, { width: 170, align: 'justify' });
+            doc.moveDown(0.8);
+            if (listaDetalleTicket[i].sector != 'N/A') {
+                doc.fontSize(10).text('Sector: ' + listaDetalleTicket[i].sector, { width: 170, align: 'justify' });
+                doc.moveDown(0.8);
+            }
+
+            if (listaDetalleTicket[i].espacio != 'N/A') {
+                doc.fontSize(10).text('Espacio: ' + listaDetalleTicket[i].espacio, { width: 170, align: 'justify' });
+                doc.moveDown(0.8);
+            }
+
+
+            doc.image(listaQr[i], 50, 180, {
+                fit: [100, 100]
+            });
+            doc.end();
+        }
+
+        return listaPdf;
+    }
+
+    async _generarQr(listaTickets) {
+        //let infoTickets = this._obtenerInfoTickets(listaTickets);
+        let info = await this._obtenerInfoTickets(listaTickets);
+        let infoTickets = info[0];
+        let detalle_ticket = info[1];
+        let ticketSinEncriptar = info[2]
+        console.log("tickets encriptados ", infoTickets);
+        console.log("detalle tickets ", detalle_ticket);
+        console.log("tickets sin encriptar ", ticketSinEncriptar);
+
+        //generar qr
+        let listaDeQr = [];
+        for (let i = 0; i < infoTickets.length; i++) {
+            let ticket = JSON.stringify(infoTickets[i]);
+            let url = await QRCode.toDataURL(ticket);
+            let image = url.split(';base64,').pop();
+            let pathImage = path.join(__dirname, '../public/qr/');
+            let nombreTicket = new Date().getTime() + '_' + i + '.png';
+            fs.writeFileSync(pathImage + nombreTicket, image, { encoding: 'base64' });
+            listaDeQr.push(pathImage + nombreTicket);
+        }
+        console.log("lista de qr ", listaDeQr);
+        return [listaDeQr, detalle_ticket];
+    }
+
+    async _obtenerInfoTickets(listaTickets) {
+        let usuario = await User.findByPk(listaTickets[0].idusuario);
+        let nombreUsuario = usuario.dataValues.nombre_usuario;
+        let emailUsuario = usuario.dataValues.email;
+        let ticketsEncriptados = [];
+        let listaDetalleTicket = [];
+        let ticketSinEncriptar = [];
+        for (let i = 0; i < listaTickets.length; i++) {
+            let nombreSector = 'N/A';
+            let nombreEspacio = 'N/A';
+            if (listaTickets[i].idsector) {
+                let ubicacion = await Sector.findByPk(listaTickets[i].idsector);
+                nombreSector = ubicacion.dataValues.nombre;
+            }
+
+            if (listaTickets[i].idespacio) {
+                let espacio = await Espacio.findByPk(listaTickets[i].idespacio);
+                nombreEspacio = espacio.dataValues.identificador;
+            }
+
+            let infoTicket = {
+                idticket: listaTickets[i].idticket,
+                nombreUsuario: nombreUsuario,
+                emailUsuario: emailUsuario,
+            }
+            let detalleTicket = {
+                sector: nombreSector,
+                espacio: nombreEspacio,
+            }
+            let ticketsEncriptado = CryptoJS.AES.encrypt(JSON.stringify(infoTicket), process.env.AES_KEY).toString();
+            ticketsEncriptados.push(ticketsEncriptado);
+            listaDetalleTicket.push(detalleTicket);
+            ticketSinEncriptar.push(infoTicket);
+        }
+        return [ticketsEncriptados, listaDetalleTicket, ticketSinEncriptar];
+    }
     async _compraSector(verificaSector, datosCompra, nota_venta, t) {
         let listaSinEspacios = [];
         let listaConEspacios = [];
@@ -141,6 +272,8 @@ class CompraRepository extends BaseRepository {
         console.log("listaTickets sin espacios", listaTikectsSinEspacios);
         console.log("listaTickets con espacios", listaTikectsConEspacios);
         console.log("nota_venta", nota_venta.dataValues);
+        let listaTikects = listaTikectsSinEspacios.concat(listaTikectsConEspacios);
+        return listaTikects;
     }
 
     async _modificarPrecioTotal(nota_venta, t, listaDetalles) {
@@ -395,6 +528,7 @@ class CompraRepository extends BaseRepository {
         //generar qr del ticket
         console.log("lista de tickets", listatickets);
         console.log("nota de venta", nota_venta.dataValues);
+        return listatickets;
     }
 
 }
