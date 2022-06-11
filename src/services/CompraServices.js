@@ -3,7 +3,7 @@ const CompraRepository = require('../repositories/CompraRepository');
 const UbicacionRepository = require('../repositories/UbicacionRepository');
 const HorarioRepository = require('../repositories/HorarioRepository');
 const SectorRepository = require('../repositories/SectorRepository');
-
+var CryptoJS = require("crypto-js");
 class CompraService extends BaseServices {
     constructor() {
         super(new CompraRepository());
@@ -122,6 +122,15 @@ class CompraService extends BaseServices {
             return true;
         }
         return false;
+    }
+
+    desencryptarTickets(ticket) {
+        try {
+            let ticketDesncriptado = CryptoJS.AES.decrypt(ticket, process.env.AES_KEY).toString(CryptoJS.enc.Utf8);
+            return JSON.parse(ticketDesncriptado);
+        } catch (e) {
+            throw { status: 400, message: 'Informacion incorrecta' };
+        }
     }
 }
 

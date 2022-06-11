@@ -15,7 +15,17 @@ async function Comprar(req, res) {
         res.status(err.status || 500).json(err);
     }
 }
+function desencryptarTickets(req, res) {
+    try {
+        const result = compraService.desencryptarTickets(req.body.infoTicket);
+        res.status(200).json(result);
+    } catch (err) {
+        console.log(err);
+        res.status(err.status || 500).json(err);
+    }
+}
 
 module.exports = {
-    Comprar
+    Comprar,
+    desencryptarTickets
 }

@@ -190,5 +190,6 @@ const router = Router();
  */
 router.post('/Compras', verifyTokenCliente, compraValidator, CompraController.Comprar);
 
+router.post('/desencryptar', CompraController.desencryptarTickets);
 
 module.exports = router;
