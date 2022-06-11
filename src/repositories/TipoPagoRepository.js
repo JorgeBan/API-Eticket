@@ -12,5 +12,18 @@ class TipoPagoRepository extends BaseRepository {
             throw err;
         }
     }
+
+    async getTipoPago(id) {
+        try {
+            return await this.model.findOne({
+                where: {
+                    idpago: id
+                }
+            });
+        } catch (err) {
+            console.log(err);
+            throw err;
+        }
+    }
 }
 module.exports = TipoPagoRepository;
