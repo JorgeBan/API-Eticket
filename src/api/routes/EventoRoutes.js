@@ -1,19 +1,21 @@
 const { Router } = require('express');
 const EventoController = require('../controllers/EventoController');
 const { validateCreate, validateUpdateEstado } = require('../validators/EventoValidator');
+const { verifyTokenAdmin } = require('../../middlewares/authMiddleware');
+
 const router = new Router();
 
-router.get('/eventosEncabezados', EventoController.getAllEventoEncabezados);
-router.get('/eventosDatos', EventoController.getAllEventosDatos);
-router.get('/eventosEncabezados/:id', EventoController.getEventoEncabezadosById);
-router.get('/eventosDatos/:id', EventoController.getEventosDatosById);
+router.get('/eventosEncabezados', verifyTokenAdmin, EventoController.getAllEventoEncabezados);
+router.get('/eventosDatos', verifyTokenAdmin, EventoController.getAllEventosDatos);
+router.get('/eventosEncabezados/:id', verifyTokenAdmin, EventoController.getEventoEncabezadosById);
+router.get('/eventosDatos/:id', verifyTokenAdmin, EventoController.getEventosDatosById);
 
-router.post('/eventos', validateCreate, EventoController.createEvento);
+router.post('/eventos', validateCreate, verifyTokenAdmin, EventoController.createEvento);
 
-router.put('/eventos/:id', EventoController.updateEvento);
-router.put('/eventos/estado/:id', validateUpdateEstado, EventoController.updateEstadoEvento);
+router.put('/eventos/:id', verifyTokenAdmin, EventoController.updateEvento);
+router.put('/eventos/estado/:id', validateUpdateEstado, verifyTokenAdmin, EventoController.updateEstadoEvento);
 
-router.delete('/eventos/:id', EventoController.deleteEvento);
+router.delete('/eventos/:id', verifyTokenAdmin, EventoController.deleteEvento);
 
 
 //rutas para el manejo de los eventos del lado del cliente final

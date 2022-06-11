@@ -1,15 +1,17 @@
 const { Router } = require('express');
 const UbicacionController = require('../controllers/UbicacionController');
 const { validateCreate } = require('../validators/UbicacionValidator');
+const { verifyTokenAdmin } = require('../../middlewares/authMiddleware');
+
 const router = Router();
 
-router.get('/ubicaciones', UbicacionController.getAllUbicaciones);
-router.get('/ubicaciones/:id', UbicacionController.getUbicacionById);
+router.get('/ubicaciones', verifyTokenAdmin, UbicacionController.getAllUbicaciones);
+router.get('/ubicaciones/:id', verifyTokenAdmin, UbicacionController.getUbicacionById);
 
-router.post('/ubicaciones', validateCreate, UbicacionController.createUbicacion);
-router.put('/ubicaciones/:id', UbicacionController.updateUbicacion);
+router.post('/ubicaciones', validateCreate, verifyTokenAdmin, UbicacionController.createUbicacion);
+router.put('/ubicaciones/:id', verifyTokenAdmin, UbicacionController.updateUbicacion);
 
-router.delete('/ubicaciones/:id', UbicacionController.deleteUbicacion);
+router.delete('/ubicaciones/:id', verifyTokenAdmin, UbicacionController.deleteUbicacion);
 
 
 //rutas para el lado del cliente final

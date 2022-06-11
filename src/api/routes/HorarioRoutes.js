@@ -1,17 +1,18 @@
 const { Router } = require('express');
 const HorarioController = require('../controllers/HorarioController');
 const { validateCreate } = require('../validators/HorarioValidator');
+const { verifyTokenAdmin } = require('../../middlewares/authMiddleware');
 
 const router = Router();
 
-router.get('/horarios', HorarioController.getAllHorarios);
-router.get('/horarios/:id', HorarioController.getHorarioById);
+router.get('/horarios', verifyTokenAdmin, HorarioController.getAllHorarios);
+router.get('/horarios/:id', verifyTokenAdmin, HorarioController.getHorarioById);
 
-router.post('/horarios', validateCreate, HorarioController.createHorario);
+router.post('/horarios', validateCreate, verifyTokenAdmin, HorarioController.createHorario);
 
-router.put('/horarios/:id', HorarioController.updateHorario);
+router.put('/horarios/:id', verifyTokenAdmin, HorarioController.updateHorario);
 
-router.delete('/horarios/:id', HorarioController.deleteHorario);
+router.delete('/horarios/:id', verifyTokenAdmin, HorarioController.deleteHorario);
 
 
 //rutas para el manejo de los eventos del lado del cliente final

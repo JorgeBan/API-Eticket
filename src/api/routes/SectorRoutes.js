@@ -1,18 +1,19 @@
 const { Router } = require('express');
 const SectorController = require('../controllers/SectorController');
 const { validateCreate } = require('../validators/SectorValidator');
+const { verifyTokenAdmin } = require('../../middlewares/authMiddleware');
 
 
 const router = Router();
 
-router.get('/sectores', SectorController.getAllSectores);
-router.get('/sectores/:id', SectorController.getSectorById);
+router.get('/sectores', verifyTokenAdmin, SectorController.getAllSectores);
+router.get('/sectores/:id', verifyTokenAdmin, SectorController.getSectorById);
 
-router.post('/sectores', validateCreate, SectorController.createSector);
+router.post('/sectores', validateCreate, verifyTokenAdmin, SectorController.createSector);
 
-router.put('/sectores/:id', SectorController.updateSector);
+router.put('/sectores/:id', verifyTokenAdmin, SectorController.updateSector);
 
-router.delete('/sectores/:id', SectorController.deleteSector);
+router.delete('/sectores/:id', verifyTokenAdmin, SectorController.deleteSector);
 
 /**
  * @swagger

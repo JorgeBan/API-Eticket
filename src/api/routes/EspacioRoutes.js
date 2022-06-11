@@ -1,7 +1,7 @@
 const { Router } = require('express');
 const EspacioController = require('../controllers/EspacioController');
 const { validateCreate } = require('../validators/EspacioValidator');
-
+const { verifyTokenAdmin } = require('../../middlewares/authMiddleware');
 const router = Router();
 /**
  * @swagger
@@ -31,16 +31,16 @@ const router = Router();
  *           precio: 100
  *           
  */
-router.get('/espacios', EspacioController.getAllEspacios);
-router.get('/espacios/:id', EspacioController.getEspacioById);
+router.get('/espacios', verifyTokenAdmin, EspacioController.getAllEspacios);
+router.get('/espacios/:id', verifyTokenAdmin, EspacioController.getEspacioById);
 
-router.post('/espacios', validateCreate, EspacioController.createEspacio);
-router.post('/espacios/:cantidad', validateCreate, EspacioController.createAllEspacios);
+router.post('/espacios', validateCreate, verifyTokenAdmin, EspacioController.createEspacio);
+router.post('/espacios/:cantidad', validateCreate, verifyTokenAdmin, EspacioController.createAllEspacios);
 
 
-router.put('/espacios/:id', EspacioController.updateEspacio);
+router.put('/espacios/:id', verifyTokenAdmin, EspacioController.updateEspacio);
 
-router.delete('/espacios/:id', EspacioController.deleteEspacio);
+router.delete('/espacios/:id', verifyTokenAdmin, EspacioController.deleteEspacio);
 
 
 //rutas para el manejon de los espacios reservados
