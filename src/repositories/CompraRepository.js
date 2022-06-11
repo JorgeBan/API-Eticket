@@ -10,7 +10,7 @@ const _ubicacion_repository = new Ubicacion_repository();
 const Sector_repository = require('../repositories/SectorRepository');
 const _sector_repository = new Sector_repository();
 
-const Espacio_repository = require('../repositories/EspacioRepository');
+const Imagenes_evento = require('../models/Imagenes_evento');
 const Espacio = require('../models/Espacio');
 const Sector = require('../models/Sector');
 const Evento = require('../models/Evento');
@@ -23,14 +23,15 @@ const Horario = require('../models/Horario');
 
 const fs = require('fs');
 const path = require('path');
-const { lista } = require('../public/qr/test');
 //para encriptar la informacion del Qr
 var CryptoJS = require("crypto-js");
 //Para crear Qr
 var QRCode = require('qrcode')
 var PDFDocument = require('pdfkit');
+var pdf = require('html-pdf');
 //para enviar el correo
 const mailConfig = require('../config/services/mailConfig');
+const { getTiketTemplate } = require('../public/ticket');
 
 class CompraRepository extends BaseRepository {
     constructor() {
@@ -116,14 +117,16 @@ class CompraRepository extends BaseRepository {
                 listaTickets = await this._compraSector(verificaSector, datosCompra, nota_venta, t);
             }
 
+            console.log("listaTickets: ", listaTickets);
             let infoTickets = await this._generarQr(listaTickets);
             let listaQr = infoTickets[0];
             let listaDetalleTicket = infoTickets[1];
-            let listaPdf = await this._generarPfd(listaQr, listaDetalleTicket, datosCompra);
+            let listaPdf = await this._crearPDF(listaQr, listaDetalleTicket, datosCompra);
+            console.log("listaPdf: ", listaPdf);
             await this._enviarCorreo(datosUsuario, listaPdf);
             //detener 5 segundos para que se puedan enviar los pdfs
-            await new Promise(resolve => setTimeout(resolve, 5000));
-            await this._eliminarArchivos(listaPdf, listaQr);
+            await new Promise(resolve => setTimeout(resolve, 6000));
+            await this._eliminarArchivos(listaPdf);
             await t.commit();
             return {
                 status: 200,
@@ -151,11 +154,89 @@ class CompraRepository extends BaseRepository {
         }
     }
 
-    async _eliminarArchivos(listaPdf, listaQr) {
+    async _eliminarArchivos(listaPdf) {
         for (let i = 0; i < listaPdf.length; i++) {
             fs.unlinkSync(listaPdf[i].ruta);
-            fs.unlinkSync(listaQr[i]);
         }
+    }
+    async _generarQr(listaTickets) {
+        let info = await this._obtenerInfoTickets(listaTickets);
+        let infoTickets = info[0];
+        let detalle_ticket = info[1];
+
+        //generar qr
+        let listaDeQr = [];
+        for (let i = 0; i < infoTickets.length; i++) {
+            let ticket = JSON.stringify(infoTickets[i]);
+            let url = await QRCode.toDataURL(ticket);
+            listaDeQr.push(url);
+        }
+        console.log("lista de qr ", listaDeQr);
+        return [listaDeQr, detalle_ticket];
+    }
+
+
+
+    async _crearPDF(listaQr, listaDetalleTicket, datosCompra) {
+        let listaPdf = [];
+        let pathPDF = path.join(__dirname, '../public/pdf/');
+        const evento = await Evento.findByPk(datosCompra.idevento);
+        const ubicacion = await Ubicacion.findByPk(datosCompra.idubicacion);
+        const horario = await Horario.findByPk(datosCompra.idhorario);
+        const imagen_evento = await Imagenes_evento.findOne({
+            where: {
+                idevento: datosCompra.idevento,
+            }
+        });
+        console.log("imagen_evento ", imagen_evento.dataValues);
+        const nombreEvento = evento.dataValues.nombre;
+        const nombreUbicacion = ubicacion.dataValues.nombre;
+        const fecha_hora = horario.dataValues.fecha_hora;
+        const date = new Date(fecha_hora);
+        const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+        const dia = date.getDate();
+        const mes = meses[date.getMonth()];
+        const año = date.getFullYear();
+        const options = {
+            hour: 'numeric',
+            minute: 'numeric',
+            hour12: true
+        };
+        const hora = new Intl.DateTimeFormat('en-US', options).format(date);
+
+        for (let i = 0; i < listaQr.length; i++) {
+            let sector = '';
+            let espacio = '';
+            if (listaDetalleTicket[i].sector != 'N/A') sector = listaDetalleTicket[i].sector;
+
+            if (listaDetalleTicket[i].espacio != 'N/A') espacio = listaDetalleTicket[i].espacio;
+
+            let nombrePDF = new Date().getTime() + '_' + i + '.pdf';
+            let rutaPDF = pathPDF + nombrePDF;
+            listaPdf.push({
+                nombre: nombrePDF,
+                ruta: rutaPDF,
+            });
+            const content = getTiketTemplate(nombreEvento, nombreUbicacion, sector, espacio, dia, mes, año, hora, listaQr[i], imagen_evento.dataValues.url);
+            pdf.create(content, {
+                format: 'A4',
+                orientation: 'landscape',
+                childProcessOptions: {
+                    env: {
+                        OPENSSL_CONF: '/dev/null',
+                    },
+                }
+            }).toFile(rutaPDF, (err, res) => {
+                if (err) {
+                    console.log(err);
+                } else {
+                    console.log("PDF creado con exito", res);
+                }
+
+            });
+
+        }
+        return listaPdf;
     }
 
     async _generarPfd(listaQr, listaDetalleTicket, datosCompra) {
@@ -214,29 +295,6 @@ class CompraRepository extends BaseRepository {
         return listaPdf;
     }
 
-    async _generarQr(listaTickets) {
-        let info = await this._obtenerInfoTickets(listaTickets);
-        let infoTickets = info[0];
-        let detalle_ticket = info[1];
-        let ticketSinEncriptar = info[2]
-        console.log("tickets encriptados ", infoTickets);
-        console.log("detalle tickets ", detalle_ticket);
-        console.log("tickets sin encriptar ", ticketSinEncriptar);
-
-        //generar qr
-        let listaDeQr = [];
-        for (let i = 0; i < infoTickets.length; i++) {
-            let ticket = JSON.stringify(infoTickets[i]);
-            let url = await QRCode.toDataURL(ticket);
-            let image = url.split(';base64,').pop();
-            let pathImage = path.join(__dirname, '../public/qr/');
-            let nombreTicket = new Date().getTime() + '_' + i + '.png';
-            fs.writeFileSync(pathImage + nombreTicket, image, { encoding: 'base64' });
-            listaDeQr.push(pathImage + nombreTicket);
-        }
-        console.log("lista de qr ", listaDeQr);
-        return [listaDeQr, detalle_ticket];
-    }
 
     async _obtenerInfoTickets(listaTickets) {
         let usuario = await User.findByPk(listaTickets[0].idusuario);
