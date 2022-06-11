@@ -115,6 +115,12 @@ const router = Router();
  *       tags:  [Compra]
  *       summary: realiza la compra de tickets
  *       description: Permite realizar la compra de tickets de una sola ubicacion y un solo horario por compra, pero puede seleccionar tickets de los distintos sectores de la ubicacion
+ *       parameters:
+ *         - in: header
+ *           name: authorization
+ *           description: token de autorizacion de tipo Bearer
+ *           required: true
+ *        
  *       requestBody:
  *         description: Datos de la compra, se requerie de los datos del cliente para la nota de venta, y la informacion de la compra, el idevento,idubicacion, y el idhorario deben estar relacionados, es decir el horario debe pertenecer a la ubicacion, y las ubicaciones al evento, caso contrario se arroja error de datos incorrectos
  *         required: true
