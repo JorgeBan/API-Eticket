@@ -123,10 +123,11 @@ class CompraRepository extends BaseRepository {
             let listaDetalleTicket = infoTickets[1];
             let listaPdf = await this._crearPDF(listaQr, listaDetalleTicket, datosCompra);
             console.log("listaPdf: ", listaPdf);
-            await this._enviarCorreo(datosUsuario, listaPdf);
             //detener 5 segundos para que se puedan enviar los pdfs
-            await new Promise(resolve => setTimeout(resolve, 6000));
-            await this._eliminarArchivos(listaPdf);
+            await new Promise(resolve => setTimeout(resolve, 3000));
+            await this._enviarCorreo(datosUsuario, listaPdf);
+
+            //await this._eliminarArchivos(listaPdf);
             await t.commit();
             return {
                 status: 200,
@@ -219,7 +220,7 @@ class CompraRepository extends BaseRepository {
             });
             const content = getTiketTemplate(nombreEvento, nombreUbicacion, sector, espacio, dia, mes, año, hora, listaQr[i], imagen_evento.dataValues.url);
             pdf.create(content, {
-                format: 'A4',
+                format: 'A3',
                 orientation: 'landscape',
                 childProcessOptions: {
                     env: {
