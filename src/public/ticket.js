@@ -142,13 +142,13 @@ function getTiketTemplate(evento, ubicacion, sector, espacio, dia, mes, año, ho
         }
 
         .show-name {
-            font-size: 32px;
+            font-size: 15px;
             font-family: "Nanum Pen Script", cursive;
             color: #d83565;
         }
 
         .show-name h1 {
-            font-size: 48px;
+            font-size: 25px;
             font-weight: 700;
             letter-spacing: 0.1em;
             color: #4a437e;
