@@ -127,7 +127,7 @@ class CompraRepository extends BaseRepository {
             await new Promise(resolve => setTimeout(resolve, 3000));
             await this._enviarCorreo(datosUsuario, listaPdf);
 
-            await this._eliminarArchivos(listaPdf);
+            //await this._eliminarArchivos(listaPdf);
             await t.commit();
             return {
                 status: 200,
