@@ -18,6 +18,7 @@ const AuthRoutes = require('./src/api/routes/AuthRoutes');
 const CompraRoutes = require('./src/api/routes/CompraRoutes');
 const TipoPagoRoutes = require('./src/api/routes/TipoPagoRoutes');
 const NotaVentaRoutes = require('./src/api/routes/NotaVentaRoutes');
+const TicketRoutes = require('./src/api/routes/VerificarTicketRoutes');
 const app = express();
 
 const API_URI = '/api/v1.0.0';
@@ -43,6 +44,7 @@ app.use(API_URI, AuthRoutes);
 app.use(API_URI, CompraRoutes);
 app.use(API_URI, TipoPagoRoutes);
 app.use(API_URI, NotaVentaRoutes);
+app.use(API_URI, TicketRoutes);
 
 app.use(API_URI, (req, res) => {
     res.status(200).json({

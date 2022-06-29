@@ -36,7 +36,12 @@ const Ticket = sequelize.define('ticket', {
     idusuario: {
         type: Sequelize.UUIDV4,
         allowNull: false,
-    }
+    },
+    estado: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        defaultValue: Sequelize.STRING
+    },
 }, {
     timestamp: false,
     createdAt: false,
