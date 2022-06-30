@@ -90,6 +90,46 @@ router.get('/admin/users/controlador', verifyTokenAdmin, UserController.getAllCo
  *                 
  */
 router.get('/admin/users/roles', verifyTokenAdmin, UserController.getRoles);
-//router.get('/verifyTokenControlador', UserController.verifyTokenControlador());
+
+
+/**
+ * @swagger
+ *   /verifyTokenControlador:
+ *     post:
+ *       summary: Verifica si un usuario es un controlador
+ *       tags: [Usuarios] 
+ *       parameters:
+ *         - in: header
+ *           name: authorization
+ *           description: token de autorizacion de tipo Bearer
+ *           required: true
+ * 
+ *       responses:
+ *         200:
+ *           content:
+ *             application/json:
+ *               schema:
+ *                 type: object
+ *                 properties:
+ *                   message:
+ *                     type: string
+ *                 example:
+ *                   message: Usuario Valido 
+ *         401:
+ *           content:
+ *             application/json:
+ *               schema:
+ *                 type: object
+ *                 properties:
+ *                   status:
+ *                     type: integer
+ *                   message:
+ *                     type: string
+ *                 example:
+ *                   status: 401
+ *                   message: Usuario no valido
+ * 
+ */
+router.post('/verifyTokenControlador', UserController.verifyTokenControlador);
 
 module.exports = router;

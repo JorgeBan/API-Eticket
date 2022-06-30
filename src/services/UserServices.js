@@ -33,6 +33,16 @@ class UserService {
             throw e;
         }
     }
+
+    async verifyTokenControlador(tokenData) {
+        try {
+            console.log('tokenData', tokenData);
+            if (tokenData.rol !== 'controlador') throw { status: 401, message: 'Usuario no valido' };
+            return { message: 'usuario valido' };
+        } catch (e) {
+            throw e;
+        }
+    }
 }
 
 module.exports = UserService;
