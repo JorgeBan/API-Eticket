@@ -8,6 +8,7 @@ var CryptoJS = require("crypto-js");
 const Ticket = require('../models/Ticket');
 //const BaseServices = require('../services/BaseServices');
 const TicketDTO = require('../dto/ticket/InfoTicketDTO');
+const RegistroDTO = require('../dto/ticket/registroTicketDTO');
 
 class TicketServices {
     constructor() {
@@ -53,6 +54,21 @@ class TicketServices {
         }
     }
 
+    async registrarTicket(idticket, idusuario) {
+        try {
+            let ticket = await this._ticketRepository.getById(idticket);
+            let response = { msg: 'El ticket ya ha sido utilizado' };
+            if (ticket.estado === 'disponible') {
+                let registroDTO = new RegistroDTO(idticket, idusuario);
+                await this._ticketRepository.registrarTicket(registroDTO);
+                response.msg = 'ticket registrado';
+            }
+
+            return response;
+        } catch (e) {
+            throw e;
+        }
+    }
     async _obtenerSectorYEspacio(ticket, _sectorRepository, _espacioRepository) {
         let sector = 'N/A';
         let espacio = 'N/A';

@@ -1,4 +1,5 @@
 const TicketService = require('../../services/TicketServices');
+const jwtConfig = require('../../config/services/jwtConfig');
 const ticketService = new TicketService();
 async function infoTickets(req, res) {
     try {
@@ -10,6 +11,18 @@ async function infoTickets(req, res) {
     }
 }
 
+async function registrarTicket(req, res) {
+    try {
+        let token = req.headers['authorization'].split(' ')[1];
+        let tokenData = jwtConfig.getTokenData(token);
+        let ticketRegistrado = await ticketService.registrarTicket(req.body.idticket, tokenData.data.idusuario);
+        res.json(ticketRegistrado);
+    } catch (err) {
+        res.status(err.status || 500).json(err);
+    }
+}
+
 module.exports = {
-    infoTickets
+    infoTickets,
+    registrarTicket
 };

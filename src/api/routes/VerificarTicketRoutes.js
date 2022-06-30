@@ -90,4 +90,44 @@ const { verifyTokenControlador } = require('../../middlewares/authMiddleware');
  * 
  */
 router.post('/controlador/infoTickets', verifyTokenControlador, TicketController.infoTickets);
+
+
+/**
+ * @swagger
+ *   /controlador/ticket/registro:
+ *     post: 
+ *       summary: Registra los tickets
+ *       tags: [Control de ticket]
+ *       description: El controlador registrara los tickets una vez haya verificado que es un ticket valido
+ *       parameters:
+ *         - in: header
+ *           name: authorization
+ *           description: token de autorizacion de tipo Bearer
+ * 
+ *       requestBody:
+ *         required: true
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: Object
+ *               properties:
+ *                 idticket:
+ *                   type: String
+ *               example:
+ *                 idticket: d37ea82f-4317-4026-9a48-6e69e18768f8
+ *                   
+ *       responses: 
+ *         200: 
+ *           content:
+ *             application/json:
+ *               schema:
+ *                 type: Object
+ *                 properties:
+ *                   msg: string
+ * 
+ *                 example:
+ *                   msg: Ticket Registrado          
+ *             
+ */
+router.post('/controlador/ticket/registro', verifyTokenControlador, TicketController.registrarTicket)
 module.exports = router;
