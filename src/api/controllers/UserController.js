@@ -6,7 +6,7 @@ async function getRoles(req, res) {
         let roles = await _userService.getRoles();
         res.status(200).json(roles);
     } catch (err) {
-        res.status(500 || err.status).json(err);
+        res.status(err.status || 500).json(err);
     }
 }
 
@@ -15,7 +15,7 @@ async function getAllControlador(req, res) {
         let constroladores = await _userService.getAllControlador();
         res.status(200).json(constroladores);
     } catch (err) {
-        res.status(500 || err.status).json(err);
+        res.status(err.status || 500).json(err);
     }
 }
 
@@ -26,7 +26,7 @@ async function verifyTokenControlador(req, res) {
         let response = await _userService.verifyTokenControlador(tokenData.data);
         res.status(200).json(response);
     } catch (err) {
-        res.status(500 || err.status).json(err);
+        res.status(err.status || 500).json(err);
     }
 }
 
