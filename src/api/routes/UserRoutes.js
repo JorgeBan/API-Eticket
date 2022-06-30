@@ -23,15 +23,55 @@ const router = Router();
  *           nombre: admin
  *           description: rol de administrador
  * 
+ *             
+ *       Controlador: 
+ *         type: object
+ *         properties:
+ *           id:
+ *             type: string
+ *           nombre:
+ *             type: string       
+ *           rol:
+ *             type: string
+ *         example:
+ *           id: 1
+ *           nombre: controlador
+ *           rol: Controlador
+ *   
+ *                   
+ *                   
+ *                   
  */
 
-//router.get('/admin/users/controlador', UserController.getControlador());
+
+/**
+ * @swagger
+ *   /admin/users/controlador:
+ *     get:
+ *       summary: Obtiene todos los usuarios con rol del controlador que esten verificados 
+ *       tags: [Usuarios]
+ *       parameters:
+ *         - in: header
+ *           name: authorization
+ *           description: token de autorizacion de tipo Bearer
+ *           required: true
+ *          
+ *       responses:
+ *         200:
+ *           content:
+ *             application/json:
+ *               schema:
+ *                 type: array
+ *                 items:
+ *                   $ref: '#/components/schemas/Controlador'
+ */
+router.get('/admin/users/controlador', verifyTokenAdmin, UserController.getAllControlador);
 
 /**
  * @swagger
  *   /admin/users/roles:
  *     get:
- *       tags: [Usarios]
+ *       tags: [Usuarios]
  *       summary: Obtiene todos los roles de usuario para poder registrarlos
  *       parameters:
  *         - in: header

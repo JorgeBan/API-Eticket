@@ -15,6 +15,25 @@ class UserRepository extends BaseRepository {
             throw e;
         }
     }
+
+    async getAllControlador() {
+        try {
+            let constroladores = await this.model.findAll({
+                include: {
+                    model: Rol,
+                    where: {
+                        nombre: 'controlador'
+                    }
+                },
+                where: {
+                    estado: 'Verificado'
+                }
+            });
+            return constroladores;
+        } catch (e) {
+            throw e;
+        }
+    }
 }
 
 module.exports = UserRepository;

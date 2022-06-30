@@ -9,6 +9,16 @@ async function getRoles(req, res) {
     }
 }
 
+async function getAllControlador(req, res) {
+    try {
+        let constroladores = await _userService.getAllControlador();
+        res.status(200).json(constroladores);
+    } catch (err) {
+        res.status(500 || err.status).json(err);
+    }
+}
+
 module.exports = {
     getRoles,
+    getAllControlador
 }
