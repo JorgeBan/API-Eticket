@@ -54,12 +54,15 @@ class TicketServices {
         }
     }
 
-    async registrarTicket(idticket, idusuario) {
+    async registrarTicket(idticket, idubicacion, idhorario, idusuario) {
         try {
             let ticket = await this._ticketRepository.getById(idticket);
             let response = { msg: 'El ticket ya ha sido utilizado' };
+
+            if (ticket.idubicacion !== idubicacion || ticket.idhorario !== idhorario)
+                throw { status: 400, message: 'El ticket no corresponde al evento seleccionado' };
             if (ticket.estado === 'disponible') {
-                let registroDTO = new RegistroDTO(idticket, idusuario);
+                let registroDTO = new RegistroDTO(idticket, idusuario, idubicacion, idhorario);
                 await this._ticketRepository.registrarTicket(registroDTO);
                 response.msg = 'ticket registrado';
             }

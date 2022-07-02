@@ -106,15 +106,22 @@ router.post('/controlador/infoTickets', verifyTokenControlador, TicketController
  * 
  *       requestBody:
  *         required: true
+ *         description: Se requiere el idubicacion, y el idhorario para que no se registre cualquier ticket, y solo se puede registrar los tickets del evento que el controlador ha elegido para controlar, ambos ids vendran en el listado de eventos que el controlador tiene asignados
  *         content:
  *           application/json:
  *             schema:
  *               type: Object
  *               properties:
  *                 idticket:
- *                   type: String
+ *                   type: string
+ *                 idubicacion:
+ *                   type: integer
+ *                 idhorario:
+ *                   type: integer
  *               example:
  *                 idticket: d37ea82f-4317-4026-9a48-6e69e18768f8
+ *                 idubicacion: 50
+ *                 idhorario: 57
  *                   
  *       responses: 
  *         200: 
@@ -127,7 +134,21 @@ router.post('/controlador/infoTickets', verifyTokenControlador, TicketController
  * 
  *                 example:
  *                   msg: Ticket Registrado          
- *             
+ *         
+ *         400:
+ *           description: Este error se lanzara en caso de que el qr del ticket escaneado sea de un evento distinto al que el controlador a seleccionado de su lista de eventos
+ *           content:
+ *             application/json:
+ *               schema:
+ *                 type: object
+ *                 properties:
+ *                   status:
+ *                     type: integer
+ *                   message:
+ *                     type: string
+ *                 example:
+ *                   status: 400
+ *                   message: El ticket no corresponde al evento seleccionado
  */
 router.post('/controlador/ticket/registro', verifyTokenControlador, TicketController.registrarTicket)
 module.exports = router;
