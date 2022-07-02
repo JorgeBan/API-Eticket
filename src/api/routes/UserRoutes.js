@@ -238,7 +238,7 @@ router.post('/verifyTokenControlador', UserController.verifyTokenControlador);
  *                              
  *                       
  */
-router.post('/admin/asignar/controlador', UserController.asignarControlador);
+router.post('/admin/asignar/controlador', verifyTokenAdmin, UserController.asignarControlador);
 
 
 /**
