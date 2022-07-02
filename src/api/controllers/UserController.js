@@ -30,8 +30,18 @@ async function verifyTokenControlador(req, res) {
     }
 }
 
+async function asignarControlador(req, res) {
+    try {
+        let controladorAsignado = await _userService.asignarControlador(req.body.idcontrolador, req.body.idevento, req.body.idubicacion, req.body.idhorario);
+        res.status(200).json(controladorAsignado);
+    } catch (err) {
+        res.status(err.status || 500).json(err);
+    }
+}
+
 module.exports = {
     getRoles,
     getAllControlador,
-    verifyTokenControlador
+    verifyTokenControlador,
+    asignarControlador
 }

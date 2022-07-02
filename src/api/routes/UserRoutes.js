@@ -132,4 +132,89 @@ router.get('/admin/users/roles', verifyTokenAdmin, UserController.getRoles);
  */
 router.post('/verifyTokenControlador', UserController.verifyTokenControlador);
 
+
+/**
+ * @swagger
+ *   /admin/asignar/controlador:
+ *     post:
+ *       summary: Asigna controladores a un evento
+ *       tags: [Usuarios]
+ *       parameters:
+ *         - in: header
+ *           name: authorization
+ *           description: token de autorizacion de tipo Bearer
+ *           required: true
+ *       
+ *       requestBody:
+ *         description: Se solicita los id del evento, ubicacion, y horario, ademas del usuario a asignar
+ *         required: true
+ *         content:
+ *           application/json:
+ *             schema:
+ *                 type: object
+ *                 properties:
+ *                   idcontrolador:
+ *                     type: string
+ *                     description: id del usuario controlador
+ *                     required: true
+ *                   idevento:
+ *                      type: integer
+ *                      required: true
+ *                   idubicacion:
+ *                      type: integer
+ *                      required: true
+ *                   idhorario:
+ *                      type: integer
+ *                      required: true
+ *                 example:
+ *                   idcontrolador: ccsdjosds-sds45sdsddsds-sds45sdsddsds
+ *                   idevento: 1
+ *                   idubicacion: 10
+ *                   idhorario: 25 
+ *                      
+ *       responses:
+ *         200:
+ *           content:
+ *             application/json:
+ *               schema:
+ *                 type: object
+ *                 properties:
+ *                   idcontrolador:
+ *                     type: string
+ *                     description: id del usuario controlador
+ *                     required: true
+ *                   idevento:
+ *                      type: integer
+ *                      required: true
+ *                   idubicacion:
+ *                      type: integer
+ *                      required: true
+ *                   idhorario:
+ *                      type: integer
+ *                      required: true
+ *                 example:
+ *                   idcontrolador: ccsdjosds-sds45sdsddsds-sds45sdsddsds
+ *                   idevento: 1
+ *                   idubicacion: 10
+ *                   idhorario: 25                               
+ *                     
+ *         400:
+ *           content:
+ *             application/json:
+ *               schema:
+ *                 type: object
+ *                 properties:
+ *                   status: 
+ *                     type: integer
+ *                   message:
+ *                     type: string
+ *                 example:
+ *                   status: 400
+ *                   message: Los datos incorrectos o el usuario ya ha sido asignado al evento
+ * 
+ *                 
+ *                              
+ *                       
+ */
+router.post('/admin/asignar/controlador', UserController.asignarControlador);
 module.exports = router;
