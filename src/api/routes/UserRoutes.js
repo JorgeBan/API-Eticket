@@ -1,6 +1,6 @@
 const { Router } = require('express');
 const UserController = require('../controllers/UserController.js');
-const { verifyTokenAdmin } = require('../../middlewares/authMiddleware');
+const { verifyTokenAdmin, verifyTokenControlador } = require('../../middlewares/authMiddleware');
 const router = Router();
 
 
@@ -37,10 +37,32 @@ const router = Router();
  *           id: 1
  *           nombre: controlador
  *           rol: Controlador
- *   
- *                   
- *                   
- *                   
+ *               
+ *       EventoControlador:
+ *         type: object
+ *         properties:
+ *           evento:
+ *             type: string
+ *           idubicacion:
+ *             type: integer
+ *           ubicacion:
+ *             type: string
+ *           idhorario:
+ *             type: integer
+ *           fecha:
+ *             type: string
+ *           hora:
+ *             type: string
+ *        
+ *         example: 
+ *           evento: Nombre del evento
+ *           idubicacion: 40
+ *           ubicacion: Nombre de la ubicacion
+ *           idhorario: 25
+ *           fecha: 25/07/2022
+ *           hora: 17:00                          
+ *                             
+ *                          
  */
 
 
@@ -217,4 +239,29 @@ router.post('/verifyTokenControlador', UserController.verifyTokenControlador);
  *                       
  */
 router.post('/admin/asignar/controlador', UserController.asignarControlador);
+
+
+/**
+ * @swagger
+ *   /controlador/eventos:
+ *     get: 
+ *       summary: Obtiene todos los eventos asignados de un controlador
+ *       description: devuelve una lista con todos los eventos a los que ha sido asignado un controlador, no devolvera los eventos cuya fecha haya pasado la actual, los eventos se seguiran mostrando hasta 4 horas despues de la fecha y hora programada del evento, pasada las 4 horas, dicho evento ya no se mostrara, por ejemplo si un evento fue programado para el 14/07/2022 a las 17:00, el evento sera devuelto hasta las 21:00 de la misma fehca, esto para no mostrar todos los eventos pasados, y las 4 horas asignas para el control del evento 
+ *       tags: [Control de ticket]
+ *       parameters:
+ *         - in: header
+ *           name: authorization
+ *           description: token de autorizacion de tipo Bearer
+ *           required: true
+ *       
+ *       responses:
+ *         200:
+ *           content:
+ *             application/json:
+ *               schema:
+ *                 type: array
+ *                 items:
+ *                   $ref: '#/components/schemas/EventoControlador'
+ */
+router.get('/controlador/eventos', verifyTokenControlador, UserController.getEventosControlador);
 module.exports = router;

@@ -39,9 +39,22 @@ async function asignarControlador(req, res) {
     }
 }
 
+
+async function getEventosControlador(req, res) {
+    try {
+        let token = req.headers['authorization'].split(' ')[1];
+        let tokenData = jwtConfig.getTokenData(token);
+        let eventos = await _userService.getEventosControlador(tokenData.data.idusuario);
+        res.status(200).json(eventos);
+    } catch (err) {
+        res.status(err.status || 500).json(err);
+    }
+}
+
 module.exports = {
     getRoles,
     getAllControlador,
     verifyTokenControlador,
-    asignarControlador
+    asignarControlador,
+    getEventosControlador
 }

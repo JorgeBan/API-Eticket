@@ -61,6 +61,20 @@ class UserRepository extends BaseRepository {
             throw { status: 400, message: 'Los datos son incorrectos o el usuario ya ha sido asignado al evento' };
         }
     }
+
+    async getEventosControlador(idcontrolador) {
+        try {
+            let eventos = this._controlador_evento.findAll({
+                where: {
+                    idcontrolador: idcontrolador
+                }
+            })
+
+            return eventos;
+        } catch (e) {
+            throw e;
+        }
+    }
 }
 
 module.exports = UserRepository;

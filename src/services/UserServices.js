@@ -3,11 +3,16 @@ const UserControladorDTO = require('../dto/user/UserControladorDTO');
 const CreateControladorEventoDto = require('../dto/user/createControladorEventoDTO');
 const EventoRepository = require('../repositories/EventoRepository');
 const HorarioRepository = require('../repositories/HorarioRepository');
+const UbicacionRepository = require('../repositories/UbicacionRepository');
+
+const EventoControladorDTO = require('../dto/evento/EventoControladorDTO');
+
 class UserService {
     constructor() {
         this._userRepository = new UserRepository();
         this._eventoRepository = new EventoRepository();
         this._horarioRepository = new HorarioRepository();
+        this._ubicacionRepository = new UbicacionRepository();
     }
 
     async getRoles() {
@@ -69,6 +74,48 @@ class UserService {
         } catch (e) {
             throw e;
         }
+    }
+    async getEventosControlador(idcontrolador) {
+        try {
+            let eventos = await this._userRepository.getEventosControlador(idcontrolador);
+            let eventosDTO = [];
+            for (let i = 0; i < eventos.length; i++) {
+                let item = eventos[i];
+                console.log(item.dataValues);
+                let evento = await this._eventoRepository.getById(item.idevento);
+                let ubicacion = await this._ubicacionRepository.getById(item.idubicacion);
+                let horario = await this._horarioRepository.getById(item.idhorario);
+                let { horaF, fechaF, horaFinal } = this._obtenerFechaHora(horario.dataValues.fecha_hora);
+
+                if (new Date() <= horaFinal) {
+                    let eventoDTO = new EventoControladorDTO(
+                        evento.nombre,
+                        ubicacion.idubicacion,
+                        ubicacion.nombre,
+                        horario.idhorario,
+                        horaF,
+                        fechaF
+                    );
+                    eventosDTO.push(eventoDTO);
+                }
+            }
+            return eventosDTO;
+        } catch (e) {
+            throw e;
+        }
+    }
+
+    _obtenerFechaHora(horario) {
+        let hora = new Date(horario);
+        let minutos = hora.getMinutes() + '';
+        if (minutos.length === 1)
+            minutos = minutos + '0';
+        let horaF = hora.getHours() + ':' + minutos;
+        let fechaF = hora.getDate() + '/' + (hora.getMonth() + 1) + '/' + hora.getFullYear();
+
+        let horaFinal = new Date(horario);
+        horaFinal.setHours(hora.getHours() + 4);
+        return { horaF, fechaF, horaFinal };
     }
 }
 
