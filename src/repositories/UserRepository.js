@@ -75,6 +75,20 @@ class UserRepository extends BaseRepository {
             throw e;
         }
     }
+
+    async getControladoresEvento(idevento) {
+        try {
+            let controladores = this._controlador_evento.findAll(
+                {
+                    where: {
+                        idevento: idevento
+                    }
+                });
+            return controladores;
+        } catch (e) {
+            throw e;
+        }
+    }
 }
 
 module.exports = UserRepository;

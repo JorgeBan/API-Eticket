@@ -51,10 +51,20 @@ async function getEventosControlador(req, res) {
     }
 }
 
+
+async function getControladoresEvento(req, res) {
+    try {
+        let controladores = await _userService.getControladoresEvento(req.params.idevento);
+        res.status(200).json(controladores);
+    } catch (err) {
+        res.status(err.status || 500).json(err);
+    }
+}
 module.exports = {
     getRoles,
     getAllControlador,
     verifyTokenControlador,
     asignarControlador,
-    getEventosControlador
+    getEventosControlador,
+    getControladoresEvento
 }

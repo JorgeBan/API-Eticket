@@ -117,6 +117,26 @@ class UserService {
         horaFinal.setHours(hora.getHours() + 4);
         return { horaF, fechaF, horaFinal };
     }
+
+    async getControladoresEvento(idevento) {
+        try {
+            let controladores = await this._userRepository.getControladoresEvento(idevento);
+            let controladoresDto = [];
+            for (let i = 0; i < controladores.length; i++) {
+                let item = controladores[i];
+                let usuario = await this._userRepository.getControlador(item.idcontrolador);
+                let controladorDTO = new UserControladorDTO(
+                    usuario.idusuario,
+                    usuario.nombre_usuario,
+                    usuario.rol.nombre
+                )
+                controladoresDto.push(controladorDTO);
+            }
+            return controladoresDto;
+        } catch (e) {
+            throw e;
+        }
+    }
 }
 
 module.exports = UserService;

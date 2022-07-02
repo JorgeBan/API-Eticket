@@ -264,4 +264,32 @@ router.post('/admin/asignar/controlador', verifyTokenAdmin, UserController.asign
  *                   $ref: '#/components/schemas/EventoControlador'
  */
 router.get('/controlador/eventos', verifyTokenControlador, UserController.getEventosControlador);
+
+
+/**
+ * @swagger
+ *   /admin/eventos/controlador/{idevento}:
+ *     get: 
+ *       summary: obtiene una lista con todos los controladores asignados a un evento
+ *       tags: [Usuarios]
+ *       parameters:
+ *         - in: header
+ *           name: authorization
+ *           description: token de autorizacion de tipo Bearer
+ *           required: true
+ *       
+ *         - in: path 
+ *           name: idevento
+ *           required: true
+ *       
+ *       responses:
+ *         200: 
+ *           content:
+ *             application/json:
+ *               schema:
+ *                 type: array
+ *                 items:
+ *                   $ref: '#/components/schemas/Controlador'
+ */
+router.get('/admin/eventos/controladores/:idevento', verifyTokenAdmin, UserController.getControladoresEvento);
 module.exports = router;
