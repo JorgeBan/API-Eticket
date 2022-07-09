@@ -22,8 +22,7 @@ class TicketServices {
             let ticket = await this._ticketRepository.getInfoTicket(info.idticket, info.idusuario);
 
 
-            if (ticket.idubicacion !== idubicacion || ticket.idhorario !== idhorario)
-                throw { status: 400, message: 'El ticket no corresponde al evento seleccionado' };
+            this._verificarEvento(ticket, idubicacion, idhorario);
 
 
             //obtener horario, ubicacion, sector, espacio
@@ -63,13 +62,18 @@ class TicketServices {
         }
     }
 
+    _verificarEvento(ticket, idubicacion, idhorario) {
+        if (ticket.idubicacion !== idubicacion || ticket.idhorario !== idhorario)
+            throw { status: 400, message: 'El ticket no corresponde al evento seleccionado' };
+    }
+
     async registrarTicket(idticket, idubicacion, idhorario, idusuario) {
         try {
             let ticket = await this._ticketRepository.getById(idticket);
             let response = { msg: 'El ticket ya ha sido utilizado' };
 
-            if (ticket.idubicacion !== idubicacion || ticket.idhorario !== idhorario)
-                throw { status: 400, message: 'El ticket no corresponde al evento seleccionado' };
+            this._verificarEvento(ticket, idubicacion, idhorario);
+
             if (ticket.estado === 'disponible') {
                 let registroDTO = new RegistroDTO(idticket, idusuario, idubicacion, idhorario);
                 await this._ticketRepository.registrarTicket(registroDTO);
