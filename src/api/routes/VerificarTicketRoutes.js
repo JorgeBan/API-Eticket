@@ -64,7 +64,7 @@ const { verifyTokenControlador } = require('../../middlewares/authMiddleware');
  *           required: true
  *         
  *       requestBody:
- *         description: Se envia la cadena encripdata obtenida del codigo QR
+ *         description: Se envia la cadena encripdata obtenida del codigo QR,ademas del idubicacion e idhorario para que solo se pueda obtener informacion del evento que ha seleccionado
  *         required: true
  *         content:
  *           application/json:
@@ -72,9 +72,14 @@ const { verifyTokenControlador } = require('../../middlewares/authMiddleware');
  *               properties:
  *                 codeTicket: 
  *                   type: string
+ *                 idubicacion:
+ *                   type: integer
+ *                 idhorario:
+ *                   type: integer
  *               example:
  *                 codeTicket: U2FsdGVkX1+0tzhQIyF+o/HbyGoZYHOb9sdeFMLfvhjdTNblSwn8RD/RaCY7jfREUDLyHqYxkZwC7pfOZx29EU2TDUeLZmC+I3gLXQUD7QOafoLS1VbMhTdUYFznjJDP/aAPvDIC2wQCViqabSsXdANFViaSdU4Ra27+GwwkmzA=
- *                            
+ *                 idubicacion: 1
+ *                 idhorario: 1         
  *       responses:
  *         200:
  *           content:

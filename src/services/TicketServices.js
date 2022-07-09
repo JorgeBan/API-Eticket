@@ -15,11 +15,16 @@ class TicketServices {
         this._ticketRepository = new TicketRepository();
     }
 
-    async infoTickets(codeTickets) {
+    async infoTickets(codeTickets, idubicacion, idhorario, idusuario) {
         try {
             let info = this.desencryptarTickets(codeTickets);
             //obtener datos del ticket
             let ticket = await this._ticketRepository.getInfoTicket(info.idticket, info.idusuario);
+
+
+            this._verificarEvento(ticket, idubicacion, idhorario);
+            await this._verificarUsuario(idubicacion, idhorario, idusuario);
+
             //obtener horario, ubicacion, sector, espacio
             let _ubicacionRepository = new UbicacionRepository();
             let _horarioRepository = new HorarioRepository();
@@ -50,8 +55,24 @@ class TicketServices {
 
         } catch (e) {
             console.error(e);
-            throw { status: 400, message: 'Ticket invalido' }
+            if (!e.status)
+                throw { status: 400, message: 'Ticket invalido' }
+            else
+                throw e;
         }
+    }
+    async _verificarUsuario(idubicacion, idhorario, idusuario) {
+        try {
+            let controlador = await this._ticketRepository.getControladorEvento(idubicacion, idhorario, idusuario);
+            if (!controlador) throw { status: 400, message: 'Usuario no valido, o no asignado' };
+        } catch (e) {
+            throw e;
+        }
+    }
+
+    _verificarEvento(ticket, idubicacion, idhorario) {
+        if (ticket.idubicacion !== idubicacion || ticket.idhorario !== idhorario)
+            throw { status: 400, message: 'El ticket no corresponde al evento seleccionado' };
     }
 
     async registrarTicket(idticket, idubicacion, idhorario, idusuario) {
@@ -59,8 +80,9 @@ class TicketServices {
             let ticket = await this._ticketRepository.getById(idticket);
             let response = { msg: 'El ticket ya ha sido utilizado' };
 
-            if (ticket.idubicacion !== idubicacion || ticket.idhorario !== idhorario)
-                throw { status: 400, message: 'El ticket no corresponde al evento seleccionado' };
+            this._verificarEvento(ticket, idubicacion, idhorario);
+            this._verificarUsuario(idubicacion, idhorario, idusuario);
+
             if (ticket.estado === 'disponible') {
                 let registroDTO = new RegistroDTO(idticket, idusuario, idubicacion, idhorario);
                 await this._ticketRepository.registrarTicket(registroDTO);
