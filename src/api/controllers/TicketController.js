@@ -3,7 +3,9 @@ const jwtConfig = require('../../config/services/jwtConfig');
 const ticketService = new TicketService();
 async function infoTickets(req, res) {
     try {
-        let infoTickets = await ticketService.infoTickets(req.body.codeTicket, req.body.idubicacion, req.body.idhorario);
+        let token = req.headers['authorization'].split(' ')[1];
+        let tokenData = jwtConfig.getTokenData(token);
+        let infoTickets = await ticketService.infoTickets(req.body.codeTicket, req.body.idubicacion, req.body.idhorario, tokenData.data.idusuario);
         res.json(infoTickets);
     } catch (err) {
         console.error(err);

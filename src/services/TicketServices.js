@@ -15,7 +15,7 @@ class TicketServices {
         this._ticketRepository = new TicketRepository();
     }
 
-    async infoTickets(codeTickets, idubicacion, idhorario) {
+    async infoTickets(codeTickets, idubicacion, idhorario, idusuario) {
         try {
             let info = this.desencryptarTickets(codeTickets);
             //obtener datos del ticket
@@ -23,7 +23,7 @@ class TicketServices {
 
 
             this._verificarEvento(ticket, idubicacion, idhorario);
-
+            await this._verificarUsuario(idubicacion, idhorario, idusuario);
 
             //obtener horario, ubicacion, sector, espacio
             let _ubicacionRepository = new UbicacionRepository();
@@ -61,6 +61,14 @@ class TicketServices {
                 throw e;
         }
     }
+    async _verificarUsuario(idubicacion, idhorario, idusuario) {
+        try {
+            let controlador = await this._ticketRepository.getControladorEvento(idubicacion, idhorario, idusuario);
+            if (!controlador) throw { status: 400, message: 'Usuario no valido, o no asignado' };
+        } catch (e) {
+            throw e;
+        }
+    }
 
     _verificarEvento(ticket, idubicacion, idhorario) {
         if (ticket.idubicacion !== idubicacion || ticket.idhorario !== idhorario)
@@ -73,6 +81,7 @@ class TicketServices {
             let response = { msg: 'El ticket ya ha sido utilizado' };
 
             this._verificarEvento(ticket, idubicacion, idhorario);
+            this._verificarUsuario(idubicacion, idhorario, idusuario);
 
             if (ticket.estado === 'disponible') {
                 let registroDTO = new RegistroDTO(idticket, idusuario, idubicacion, idhorario);
