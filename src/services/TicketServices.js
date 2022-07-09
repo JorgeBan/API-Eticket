@@ -15,11 +15,17 @@ class TicketServices {
         this._ticketRepository = new TicketRepository();
     }
 
-    async infoTickets(codeTickets) {
+    async infoTickets(codeTickets, idubicacion, idhorario) {
         try {
             let info = this.desencryptarTickets(codeTickets);
             //obtener datos del ticket
             let ticket = await this._ticketRepository.getInfoTicket(info.idticket, info.idusuario);
+
+
+            if (ticket.idubicacion !== idubicacion || ticket.idhorario !== idhorario)
+                throw { status: 400, message: 'El ticket no corresponde al evento seleccionado' };
+
+
             //obtener horario, ubicacion, sector, espacio
             let _ubicacionRepository = new UbicacionRepository();
             let _horarioRepository = new HorarioRepository();
@@ -50,7 +56,10 @@ class TicketServices {
 
         } catch (e) {
             console.error(e);
-            throw { status: 400, message: 'Ticket invalido' }
+            if (!e.status)
+                throw { status: 400, message: 'Ticket invalido' }
+            else
+                throw e;
         }
     }
 
