@@ -78,16 +78,16 @@ class TicketServices {
     async registrarTicket(idticket, idubicacion, idhorario, idusuario) {
         try {
             let ticket = await this._ticketRepository.getById(idticket);
-            let response = { msg: 'El ticket ya ha sido utilizado' };
+            let response = { msg: 'Ticket registrado con existo' };
 
             this._verificarEvento(ticket, idubicacion, idhorario);
             this._verificarUsuario(idubicacion, idhorario, idusuario);
 
-            if (ticket.estado === 'disponible') {
-                let registroDTO = new RegistroDTO(idticket, idusuario, idubicacion, idhorario);
-                await this._ticketRepository.registrarTicket(registroDTO);
-                response.msg = 'ticket registrado';
+            if (ticket.estado !== 'disponible') {
+                throw { status: 400, msg: 'El ticket ya fue utilizado' }
             }
+            let registroDTO = new RegistroDTO(idticket, idusuario, idubicacion, idhorario);
+            await this._ticketRepository.registrarTicket(registroDTO);
 
             return response;
         } catch (e) {
