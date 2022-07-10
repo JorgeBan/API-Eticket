@@ -40,7 +40,7 @@ const Ticket = sequelize.define('ticket', {
     estado: {
         type: Sequelize.STRING,
         allowNull: false,
-        defaultValue: Sequelize.STRING
+        defaultValue: 'disponible'
     },
 }, {
     timestamp: false,
