@@ -67,9 +67,6 @@ class AuthRepository extends BaseRepository {
                     email: email,
                     contrasena: password,
                     idrol: userRole.idrol,
-
-                    // TODO: Eliminar el estado en la presentacion
-                    estado: 'Verificado'
                     
                 }, { transaction: t });
                 await t.commit();
