@@ -1,3 +1,5 @@
+const path = require('path');
+
 const express = require('express');
 const cors = require('cors');
 //Swagger configuration
@@ -29,6 +31,7 @@ const API_URI = '/api/v1.0.0';
 app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(express.static('public'));
 app.use(express.static(__dirname));
 
 //swagger middleware
@@ -48,6 +51,10 @@ app.use(API_URI, TipoPagoRoutes);
 app.use(API_URI, NotaVentaRoutes);
 app.use(API_URI, TicketRoutes);
 app.use(API_URI, UserRoutes);
+
+app.get('*', (req, res) => {
+    res.sendFile(path.resolve(__dirname, 'public/index.html'));
+});  
 
 app.use(API_URI, (req, res) => {
     res.status(200).json({
