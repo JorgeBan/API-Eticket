@@ -10,10 +10,12 @@ async function infoTickets(req, res) {
         // if (codeTicket.charAt(0)){
         //     codeTicket = codeTicket.substr(1, codeTicket.length - 2);
         // }
-
+        let codeTicket = req.body.codeTicket;
+        codeTicket = codeTicket.replaceAll('"', '');
         let tokenData = jwtConfig.getTokenData(token);
-        console.log(req.body);
-        let infoTickets = await ticketService.infoTickets(req.body.codeTicket, req.body.idubicacion, req.body.idhorario, tokenData.data.idusuario);
+        console.log('codeTicket', codeTicket);
+        console.log(typeof codeTicket);
+        let infoTickets = await ticketService.infoTickets(codeTicket, req.body.idubicacion, req.body.idhorario, tokenData.data.idusuario);
         res.json(infoTickets);
     } catch (err) {
         console.error(err);
