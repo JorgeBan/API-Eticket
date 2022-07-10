@@ -60,7 +60,7 @@ class EventoRepository extends BaseRepository {
             });
             return deletedEvento;
         } catch (e) {
-            throw e;
+            throw { status: 403, message: 'NO puedes eliminar hay entradas vendidas' };
         }
     }
 

@@ -50,7 +50,7 @@ class EspacioRepository extends BaseRepository {
             await Repofunciones._actualizarSectorCapacidad(espacio.idsector, -espacio.cantidad_de_personas);
             return deletedEspacio;
         } catch (e) {
-            throw e;
+            throw { status: 403, message: 'NO puedes eliminar hay entradas vendidas' };
         }
     }
 

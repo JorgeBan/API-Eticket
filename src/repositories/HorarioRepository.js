@@ -24,7 +24,7 @@ class HorarioRepository extends BaseRepository {
             });
             return deletedHorario;
         } catch (error) {
-            throw error;
+            throw { status: 403, message: 'NO puedes eliminar hay entradas vendidas' };
         }
     }
 
