@@ -265,8 +265,6 @@ router.post('/admin/asignar/controlador', verifyTokenAdmin, UserController.asign
  */
 router.get('/controlador/eventos', verifyTokenControlador, UserController.getEventosControlador);
 
-
-// !!! Error en esta parte, controlador -> controladores
 /**
  * @swagger
  *   /admin/eventos/controladores/{idevento}:
