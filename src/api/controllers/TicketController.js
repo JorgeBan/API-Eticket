@@ -5,15 +5,15 @@ async function infoTickets(req, res) {
     try {
         let token = req.headers['authorization'].split(' ')[1];
 
-        // Si hay "", elimino el primer y ultimo caracter para sacar las ""
-        let {codeTicket} = req.body;
-        if (codeTicket.charAt(0)){
-            codeTicket = codeTicket.substr(1, codeTicket.length - 2);
-        }
+        // TODO: Si hay "", elimino el primer y ultimo caracter para sacar las ""
+        // let {codeTicket} = req.body;
+        // if (codeTicket.charAt(0)){
+        //     codeTicket = codeTicket.substr(1, codeTicket.length - 2);
+        // }
 
         let tokenData = jwtConfig.getTokenData(token);
         console.log(req.body);
-        let infoTickets = await ticketService.infoTickets(codeTicket, req.body.idubicacion, req.body.idhorario, tokenData.data.idusuario);
+        let infoTickets = await ticketService.infoTickets(req.body.codeTicket, req.body.idubicacion, req.body.idhorario, tokenData.data.idusuario);
         res.json(infoTickets);
     } catch (err) {
         console.error(err);
