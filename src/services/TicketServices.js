@@ -84,7 +84,7 @@ class TicketServices {
             this._verificarUsuario(idubicacion, idhorario, idusuario);
 
             if (ticket.estado !== 'disponible') {
-                throw { status: 400, msg: 'El ticket ya fue utilizado' }
+                throw { status: 400, message: 'El ticket ya fue utilizado' }
             }
             let registroDTO = new RegistroDTO(idticket, idusuario, idubicacion, idhorario);
             await this._ticketRepository.registrarTicket(registroDTO);
