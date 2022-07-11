@@ -137,10 +137,16 @@ class UserService {
             for (let i = 0; i < controladores.length; i++) {
                 let item = controladores[i];
                 let usuario = await this._userRepository.getControlador(item.idcontrolador);
+                let ubicacion = await this._ubicacionRepository.getById(item.idubicacion);
+                let horario = await this._horarioRepository.getById(item.idhorario);
                 let controladorDTO = new UserControladorDTO(
                     usuario.idusuario,
                     usuario.nombre_usuario,
-                    usuario.rol.nombre
+                    usuario.rol.nombre,
+                    ubicacion.idubicacion,
+                    ubicacion.nombre,
+                    horario.idhorario,
+                    horario.fecha_hora
                 )
                 controladoresDto.push(controladorDTO);
             }
