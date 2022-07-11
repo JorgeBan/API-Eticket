@@ -291,4 +291,61 @@ router.get('/controlador/eventos', verifyTokenControlador, UserController.getEve
  *                   $ref: '#/components/schemas/Controlador'
  */
 router.get('/admin/eventos/controladores/:idevento', verifyTokenAdmin, UserController.getControladoresEvento);
+
+
+/**
+ * @swagger
+ *   /admin/eventos/controladores:
+ *     delete:
+ *        summary: Quita a un controlador de un evento
+ *        tags: [Usuarios]
+ *        parameters: 
+ *         - in: header
+ *           name: authorization
+ *           description: token de autorizacion de tipo Bearer
+ *           required: true
+ *        
+ *        requestBody:
+ *          required: true
+ *          content:
+ *            application/json:
+ *              schema:
+ *                type: object
+ *                properties:
+ *                  idcontrolador:
+ *                    type: string
+ *                  idubicacion:
+ *                    type: integer
+ *                  idhorario:
+ *                    type: integer
+ *                example:
+ *                  idcontrolador: ccsdjosds
+ *                  idubicacion: 40 
+ *                  idhorario: 12
+ *        
+ *        responses:
+ *          200: 
+ *            content:
+ *              application/json:
+ *                schema:
+ *                  type: object
+ *                  properties:
+ *                    message: string
+ *                  example: 
+ *                    message: Eliminado con exito
+ *          404: 
+ *            content:
+ *              application/json:
+ *                schema:
+ *                 type: object 
+ *                 properties:
+ *                   status: number
+ *                   message: string
+ *                 example:
+ *                   status: 404
+ *                   message: Informacion incorrecta
+ * 
+ * 
+ */
+router.delete('/admin/eventos/controladores/', verifyTokenAdmin, UserController.quitarControlador);
 module.exports = router;

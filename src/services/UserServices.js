@@ -75,6 +75,18 @@ class UserService {
             throw e;
         }
     }
+
+    async quitarControlador(idcontrolador, idubicacion, idhorario) {
+        try {
+            console.log(idcontrolador, idubicacion, idhorario);
+            let respuesta = await this._userRepository.quitarControlador(idcontrolador, idubicacion, idhorario);
+            if (respuesta === 0) throw { status: 404, message: 'informacion incorrecta' }
+            return { message: 'Eliminado con exito' }
+        } catch (e) {
+            throw e;
+        }
+    }
+
     async getEventosControlador(idcontrolador) {
         try {
             let eventos = await this._userRepository.getEventosControlador(idcontrolador);

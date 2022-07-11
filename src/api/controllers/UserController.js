@@ -60,11 +60,23 @@ async function getControladoresEvento(req, res) {
         res.status(err.status || 500).json(err);
     }
 }
+
+async function quitarControlador(req, res) {
+    try {
+        let resp = await _userService.quitarControlador(req.body.idcontrolador, req.body.idubicacion, req.body.idhorario);
+        res.status(200).json(resp);
+    } catch (err) {
+        console.log(err);
+        res.status(err.status || 500).json(err);
+    }
+}
+
 module.exports = {
     getRoles,
     getAllControlador,
     verifyTokenControlador,
     asignarControlador,
     getEventosControlador,
-    getControladoresEvento
+    getControladoresEvento,
+    quitarControlador
 }

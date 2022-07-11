@@ -62,6 +62,23 @@ class UserRepository extends BaseRepository {
         }
     }
 
+    async quitarControlador(idcontrolador, idubicacion, idhorario) {
+        try {
+            let respuesta = await this._controlador_evento.destroy({
+                where: {
+                    idcontrolador: idcontrolador,
+                    idubicacion: idubicacion,
+                    idhorario: idhorario
+                }
+            });
+            console.log(respuesta);
+            return respuesta;
+        } catch (err) {
+            console.log(err);
+            throw err;
+        }
+    }
+
     async getEventosControlador(idcontrolador) {
         try {
             let eventos = this._controlador_evento.findAll({
