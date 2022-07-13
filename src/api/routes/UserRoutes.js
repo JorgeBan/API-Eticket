@@ -295,7 +295,7 @@ router.get('/admin/eventos/controladores/:idevento', verifyTokenAdmin, UserContr
 
 /**
  * @swagger
- *   /admin/eventos/controladores:
+ *   /admin/eventos/controladores/{idcontrolador}/{idubicacion}/{idhorario}:
  *     delete:
  *        summary: Quita a un controlador de un evento
  *        tags: [Usuarios]
@@ -304,24 +304,6 @@ router.get('/admin/eventos/controladores/:idevento', verifyTokenAdmin, UserContr
  *           name: authorization
  *           description: token de autorizacion de tipo Bearer
  *           required: true
- *        
- *        requestBody:
- *          required: true
- *          content:
- *            application/json:
- *              schema:
- *                type: object
- *                properties:
- *                  idcontrolador:
- *                    type: string
- *                  idubicacion:
- *                    type: integer
- *                  idhorario:
- *                    type: integer
- *                example:
- *                  idcontrolador: ccsdjosds
- *                  idubicacion: 40 
- *                  idhorario: 12
  *        
  *        responses:
  *          200: 
@@ -347,5 +329,5 @@ router.get('/admin/eventos/controladores/:idevento', verifyTokenAdmin, UserContr
  * 
  * 
  */
-router.delete('/admin/eventos/controladores/', verifyTokenAdmin, UserController.quitarControlador);
+router.delete('/admin/eventos/controladores/:idcontrolador/:idubicacion/:idhorario', verifyTokenAdmin, UserController.quitarControlador);
 module.exports = router;

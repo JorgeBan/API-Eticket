@@ -63,7 +63,7 @@ async function getControladoresEvento(req, res) {
 
 async function quitarControlador(req, res) {
     try {
-        let resp = await _userService.quitarControlador(req.body.idcontrolador, req.body.idubicacion, req.body.idhorario);
+        let resp = await _userService.quitarControlador(req.params.idcontrolador, req.params.idubicacion, req.params.idhorario);
         res.status(200).json(resp);
     } catch (err) {
         console.log(err);
