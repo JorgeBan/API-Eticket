@@ -125,7 +125,7 @@ class UserService {
         let fechaF = hora.getDate() + '/' + (hora.getMonth() + 1) + '/' + hora.getFullYear();
 
         let horaFinal = new Date(horario);
-        horaFinal.setHours(hora.getHours() + 4);
+        horaFinal.setHours(hora.getHours() + 2);
         return { horaF, fechaF, horaFinal };
     }
 
