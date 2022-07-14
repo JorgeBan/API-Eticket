@@ -24,49 +24,55 @@ class ReporteServices {
         try {
             let ticketsVendidos = await this._reporteRepository.getTickets(idubicacion);
             let ubicacion = await this._ubicacionRepository.getById(idubicacion);
+            if (!ubicacion) throw { status: 404, message: 'No existe la ubicacion' };
             let evento = await this._eventoRepository.getById(ubicacion.idevento);
-            let idhorarioTemp = -1;
-            let horarioData = -1;
-            let itemsReporte = [];
-            for (let i = 0; i < ticketsVendidos.length; i++) {
-                let sector, espacio, controlador, hora_registro;
-                if (idhorarioTemp !== ticketsVendidos[i].idhorario) {
-                    console.log("idhorarioTemp = " + idhorarioTemp);
-                    horarioData = await this._horarioRepository.getHorarioByUbicacion(ticketsVendidos[i].idhorario, idubicacion);
-                    idhorarioTemp = ticketsVendidos[i].idhorario;
-                }
-
-                let horario = this._formatearFechaHora(horarioData.fecha_hora);
-                if (ticketsVendidos[i].estado === 'registrado') {
-                    let registroTicket = await this._reporteRepository.getById(ticketsVendidos[i].idticket);
-                    let controladorData = await this._userRepository.getById(registroTicket.idcontrolador);
-                    controlador = controladorData.nombre_usuario;
-                    hora_registro = this._formatearFechaHora(registroTicket.hora_registro);
-                }
-
-                let idsector = ticketsVendidos[i].idsector;
-
-                if (idsector) {
-                    let sectorData = await this._sectorRepository.getById(idsector);
-                    let idespacio = ticketsVendidos[i].idespacio;
-                    sector = sectorData.nombre;
-                    if (idespacio) {
-                        let espacioData = await this._espacioRepository.getById(idespacio);
-                        espacio = espacioData.identificador;
-                    }
-                }
-
-                let itemReporteDTO = new ItemReporteDTO(
-                    ticketsVendidos[i].idticket, horario, sector, espacio, controlador, hora_registro
-                );
-                itemsReporte.push(itemReporteDTO);
-            }
+            let itemsReporte = await this._armarReporte(ticketsVendidos, idubicacion);
             return new ReporteDTO(
                 evento.nombre, ubicacion.nombre, itemsReporte
             );
         } catch (e) {
-            throw { status: 404, message: 'No existe la ubicacion' };
+            throw e;
         }
+    }
+
+    async _armarReporte(ticketsVendidos, idubicacion) {
+        let idhorarioTemp = -1;
+        let horarioData = -1;
+        let itemsReporte = [];
+        for (let i = 0; i < ticketsVendidos.length; i++) {
+            let sector, espacio, controlador, hora_registro;
+            if (idhorarioTemp !== ticketsVendidos[i].idhorario) {
+                console.log("idhorarioTemp = " + idhorarioTemp);
+                horarioData = await this._horarioRepository.getHorarioByUbicacion(ticketsVendidos[i].idhorario, idubicacion);
+                idhorarioTemp = ticketsVendidos[i].idhorario;
+            }
+
+            let horario = this._formatearFechaHora(horarioData.fecha_hora);
+            if (ticketsVendidos[i].estado === 'registrado') {
+                let registroTicket = await this._reporteRepository.getById(ticketsVendidos[i].idticket);
+                let controladorData = await this._userRepository.getById(registroTicket.idcontrolador);
+                controlador = controladorData.nombre_usuario;
+                hora_registro = this._formatearFechaHora(registroTicket.hora_registro);
+            }
+
+            let idsector = ticketsVendidos[i].idsector;
+
+            if (idsector) {
+                let sectorData = await this._sectorRepository.getById(idsector);
+                let idespacio = ticketsVendidos[i].idespacio;
+                sector = sectorData.nombre;
+                if (idespacio) {
+                    let espacioData = await this._espacioRepository.getById(idespacio);
+                    espacio = espacioData.identificador;
+                }
+            }
+
+            let itemReporteDTO = new ItemReporteDTO(
+                ticketsVendidos[i].idticket, horario, sector, espacio, controlador, hora_registro
+            );
+            itemsReporte.push(itemReporteDTO);
+        }
+        return itemsReporte;
     }
 
     _formatearFechaHora(horario) {
