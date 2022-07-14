@@ -98,8 +98,7 @@ class UserService {
                 let ubicacion = await this._ubicacionRepository.getById(item.idubicacion);
                 let horario = await this._horarioRepository.getById(item.idhorario);
                 let { horaF, fechaF, horaFinal } = this._obtenerFechaHora(horario.dataValues.fecha_hora);
-
-                if (new Date() <= horaFinal) {
+                if (new Date() <= horaFinal && evento.estado === 'Activo') {
                     let eventoDTO = new EventoControladorDTO(
                         evento.nombre,
                         ubicacion.idubicacion,
