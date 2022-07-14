@@ -74,6 +74,53 @@ class ReporteServices {
         }
         return itemsReporte;
     }
+    async getReportePDF(res, infoData) {
+        try {
+            const doc = new PDF({ bufferPage: true });
+            const fileName = `Reporte${Date.now()}.pdf`;
+            const stream = res.writeHead(200,
+                {
+                    'Content-Type': 'application/pdf',
+                    'Content-Disposition': `attachment; filename="${fileName}"`,
+                })
+
+            doc.on('data', (data) => { stream.write(data) });
+            doc.on('end', () => { stream.end() });
+            let optionTable = {
+                border: null,
+                width: "fill_body",
+                striped: true,
+                stripedColors: ["#f6f6f6", "#d6c4dd"],
+                cellsPadding: 10,
+                marginTop: 60,
+                marginBottom: 60,
+                marginLeft: 45,
+                marginRight: 45,
+                headAlign: 'center'
+            };
+            doc.setDocumentHeader({
+                height: '15%'
+            }, () => {
+                doc.fontSize(20).text('Reportes de entradas vendidas', { width: 420, align: 'center' });
+                doc.fontSize(12).text('Evento: ' + infoData.evento, { width: 420, align: 'left' });
+                doc.fontSize(12).text('Ubicacion: ' + infoData.ubicacion, { width: 420, align: 'left' });
+            });
+            doc.addTable([
+                { key: 'ticket', label: 'Ticket', align: 'left' },
+                { key: 'horario', label: 'Horario', align: 'left' },
+                { key: 'sector', label: 'Sector', align: 'left' },
+                { key: 'espacio', label: 'Espacio', align: 'left' },
+                { key: 'registrado_por', label: 'Registrado por', align: 'left' },
+                { key: 'hora_registro', label: 'Hora de registro', align: 'right' },
+
+            ], infoData.entradas_vendidas, optionTable);
+
+            doc.render();
+            doc.end();
+        } catch (e) {
+            throw e;
+        }
+    }
 
     _formatearFechaHora(horario) {
         let date = new Date(horario);
