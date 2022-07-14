@@ -10,6 +10,15 @@ async function getReporte(req, res) {
     }
 }
 
+async function getReportePDF(req, res) {
+    try {
+        await _reporteServices.getReportePDF(res, req.body);
+    } catch (e) {
+        console.log(e);
+        res.status(500).json(e);
+    }
+}
 module.exports = {
-    getReporte
+    getReporte,
+    getReportePDF
 }

@@ -6,4 +6,5 @@ const router = Router();
 
 router.get('/admin/reporte/:idubicacion', verifyTokenAdmin, ReporteController.getReporte);
 
+router.post('/admin/reporte/download', ReporteController.getReportePDF);
 module.exports = router;

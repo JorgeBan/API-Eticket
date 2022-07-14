@@ -1,8 +1,8 @@
 class ReporteDTO {
-    constructor(evento, ubicacion, horarios) {
+    constructor(evento, ubicacion, vendidas) {
         this.evento = evento;
         this.ubicacion = ubicacion;
-        this.horarios = horarios;
+        this.entradas_vendidas = vendidas;
     }
 }
 module.exports = ReporteDTO

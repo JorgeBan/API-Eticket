@@ -9,6 +9,19 @@ class ReporteRepository extends BaseRepository {
         this._horario = Horario;
     }
 
+    async getTickets(idubicacion) {
+        try {
+            let tickets = await this._ticket.findAll({
+                where: {
+                    idubicacion: idubicacion
+                }
+            });
+            return tickets;
+        } catch (e) {
+            throw e;
+        }
+    }
+
     async getTicketsByHorario(idubicacion, idhorario) {
         try {
             let tickets = await this._ticket.findAll({
