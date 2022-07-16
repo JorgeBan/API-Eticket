@@ -75,7 +75,8 @@ function getTemplatePDF(name) {
 }
 
 function getTemplate(name, token) {
-    let url = process.env.URL_DEV + "" || process.env.URL_PRO + "";
+    //let url = process.env.URL_DEV + "" || process.env.URL_PRO + "";
+    let url = process.env.URL_PRO + "";
     console.log("entro a getTemplate",);
     console.log("Entro al template: ", url + "/api/auth/confirm/${token}")
     return `
